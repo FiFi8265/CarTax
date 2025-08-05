@@ -11,6 +11,7 @@
        <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
        <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
        <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
+       <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
        <style>
            * {
                margin: 0;
@@ -1331,11 +1332,11 @@
                    "Gwarancję na wykonane usługi"
                ]
            };
-           let adminPasswordHash = hashPassword("haslo");
            let isLoggedIn = false;
            let firebaseApp = null;
            let db = null;
            let storage = null;
+           let auth = null;
            let firebaseConfig = null;
            let firebaseConnected = false;
            // Enhanced Firebase Manager with auto-reconnect
@@ -1351,6 +1352,7 @@
                        firebaseApp = firebase.initializeApp(config);
                        db = firebaseApp.firestore();
                        storage = firebaseApp.storage();
+                       auth = firebaseApp.auth();
                        this.connected = true;
                        firebaseConnected = true;
                    
@@ -1388,6 +1390,7 @@
                    firebaseApp = null;
                    db = null;
                    storage = null;
+                   auth = null;
                    localStorage.removeItem('cartax_firebase_config');
                    this.updateFirebaseStatus();
                }
@@ -1822,24 +1825,17 @@
                }
            }
            function logout() {
-               isLoggedIn = false;
-               showPage('home');
-           }
-           // Password hashing function (simple hash for demo)
-           function hashPassword(password) {
-               let hash = 0;
-               for (let i = 0; i < password.length; i++) {
-                   const char = password.charCodeAt(i);
-                   hash = ((hash << 5) - hash) + char;
-                   hash = hash & hash; // Convert to 32-bit integer
-               }
-               return hash.toString();
+               auth.signOut().then(() => {
+                   isLoggedIn = false;
+                   showPage('home');
+               }).catch(error => {
+                   console.error('Błąd wylogowania:', error);
+               });
            }
            // Enhanced Data Management with password hashing
            async function saveData() {
                const data = {
                    services: services,
-                   adminPasswordHash: adminPasswordHash, // Save hashed password
                    companyInfo: companyInfo,
                    aboutContent: aboutContent,
                    firebaseConfig: firebaseConfig
@@ -1861,28 +1857,14 @@
                    const data = await firebaseManager.loadData();
                    if (data) {
                        if (data.services) services = data.services;
-                       // Load hashed password
-                       if (data.adminPasswordHash) {
-                           adminPasswordHash = data.adminPasswordHash;
-                       } else if (data.adminPassword) {
-                           // Migrate old plain text password
-                           adminPasswordHash = hashPassword(data.adminPassword);
-                       }
                        if (data.companyInfo) companyInfo = data.companyInfo;
                        if (data.aboutContent) aboutContent = data.aboutContent;
-                   } else {
-                       // If no data, set default hash
-                       adminPasswordHash = hashPassword("haslo");
                    }
                    updateWebsiteContent();
                    updateAboutContent();
                } catch (error) {
                    console.error('Error loading data:', error);
                }
-           }
-           // Enhanced password verification
-           function verifyPassword(inputPassword) {
-               return hashPassword(inputPassword) === adminPasswordHash;
            }
            // Event Listeners
            document.addEventListener('DOMContentLoaded', function() {
@@ -1912,14 +1894,16 @@
                document.getElementById('admin-login-form').addEventListener('submit', function(e) {
                    e.preventDefault();
                    const password = document.getElementById('admin-password').value;
-                   if (verifyPassword(password)) {
-                       isLoggedIn = true;
-                       showPage('admin-dashboard');
-                       loadAdminServices();
-                       firebaseManager.updateFirebaseStatus();
-                   } else {
-                       alert('Nieprawidłowe hasło!');
-                   }
+                   auth.signInWithEmailAndPassword('admin@cartax.pl', password)
+                       .then((userCredential) => {
+                           isLoggedIn = true;
+                           showPage('admin-dashboard');
+                           loadAdminServices();
+                           firebaseManager.updateFirebaseStatus();
+                       })
+                       .catch((error) => {
+                           alert('Nieprawidłowe hasło lub błąd logowania: ' + error.message);
+                       });
                });
            
                // Service form
@@ -2010,11 +1994,6 @@
                    const newPassword = document.getElementById('new-password').value;
                    const confirmPassword = document.getElementById('confirm-password').value;
                
-                   if (!verifyPassword(oldPassword)) {
-                       alert('❌ Nieprawidłowe stare hasło!');
-                       return;
-                   }
-               
                    if (newPassword !== confirmPassword) {
                        alert('❌ Nowe hasła nie są identyczne!');
                        return;
@@ -2025,10 +2004,17 @@
                        return;
                    }
                
-                   adminPasswordHash = hashPassword(newPassword);
-                   saveData();
-                   alert('✅ Hasło zostało zmienione pomyślnie!');
-                   this.reset();
+                   const user = auth.currentUser;
+                   const credential = firebase.auth.EmailAuthProvider.credential('admin@cartax.pl', oldPassword);
+               
+                   user.reauthenticateWithCredential(credential).then(() => {
+                       return user.updatePassword(newPassword);
+                   }).then(() => {
+                       alert('✅ Hasło zostało zmienione pomyślnie!');
+                       this.reset();
+                   }).catch((error) => {
+                       alert('❌ Błąd zmiany hasła: ' + error.message);
+                   });
                });
            });
            // Check for admin access in URL
