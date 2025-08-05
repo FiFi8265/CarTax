@@ -1947,9 +1947,9 @@
             return hashPassword(inputPassword) === adminPasswordHash;
         }
         // Event Listeners
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             firebaseManager.initializeFirebase(firebaseConfig);
-            loadData();
+            await loadData();
             loadServices();
             updateAboutContent();
        
