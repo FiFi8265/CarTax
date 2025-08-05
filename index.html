@@ -1,2065 +1,2055 @@
 <!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CarTax s.c. - Elektroniczny Warsztat Samochodowy | Gdańsk</title>
-    <meta name="description" content="CarTax s.c. - Specjalistyczny warsztat elektroniczny w Gdańsku. Diagnostyka samochodowa, programowanie sterowników, instalacje taksometrów, kasy fiskalne.">
-    <meta name="keywords" content="diagnostyka samochodowa, programowanie sterowników, taksometry, kasy fiskalne, elektronika samochodowa, Gdańsk">
-  
-    <!-- Firebase SDK Compat Versions -->
-    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
- 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        /* Header */
-        header {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #fff;
-        }
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-        nav ul li {
-            margin-left: 2rem;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            cursor: pointer;
-        }
-        nav ul li a:hover {
-            color: #ffd700;
-        }
-        .mobile-menu {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-        }
-        .mobile-menu span {
-            width: 25px;
-            height: 3px;
-            background: white;
-            margin: 3px 0;
-            transition: 0.3s;
-        }
-        /* Hero Section */
-        .hero {
-            height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-            opacity: 0.3;
-        }
-        .hero-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, rgba(30,60,114,0.8), rgba(42,82,152,0.8));
-        }
-        .hero-shapes {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        .hero-shape {
-            position: absolute;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-        .hero-shape:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-        .hero-shape:nth-child(2) {
-            width: 120px;
-            height: 120px;
-            top: 60%;
-            right: 15%;
-            animation-delay: 2s;
-        }
-        .hero-shape:nth-child(3) {
-            width: 60px;
-            height: 60px;
-            bottom: 20%;
-            left: 20%;
-            animation-delay: 4s;
-        }
-        .hero-shape:nth-child(4) {
-            width: 100px;
-            height: 100px;
-            top: 10%;
-            right: 25%;
-            animation-delay: 1s;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            max-width: 800px;
-            padding: 0 2rem;
-            animation: fadeInUp 1s ease-out;
-        }
-        .hero-content .logo-large {
-            font-size: 8rem;
-            font-weight: 900;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, #ffd700, #ffed4a);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 5rem;
-        }
-        .hero-content .logo-large img {
-            max-height: 300px;
-            max-width: 600px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        }
-        .hero-tagline {
-            font-size: 1.4rem;
-            margin-bottom: 0.5rem;
-            font-weight: 300;
-            opacity: 0.9;
-        }
-        .hero-description {
-            font-size: 1.1rem;
-            margin-bottom: 2.5rem;
-            opacity: 0.8;
-            line-height: 1.6;
-        }
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .hero-stats {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 3rem;
-            z-index: 10;
-        }
-        .stat-item {
-            text-align: center;
-            color: rgba(255,255,255,0.9);
-        }
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #ffd700;
-            display: block;
-        }
-        .stat-label {
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            opacity: 0.8;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: #ffd700;
-            color: #333;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-        .btn:hover {
-            background: #ffed4a;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        .btn-secondary {
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-        .btn-secondary:hover {
-            background: white;
-            color: #333;
-        }
-        /* Services Section */
-        .services {
-            padding: 100px 0;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            position: relative;
-        }
-        .services::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 100px;
-            background: linear-gradient(to bottom, rgba(102,126,234,0.1), transparent);
-        }
-        .section-title {
-            text-align: center;
-            font-size: 2.8rem;
-            margin-bottom: 1rem;
-            color: #333;
-            font-weight: 700;
-        }
-        .section-subtitle {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #666;
-            margin-bottom: 4rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2.5rem;
-            margin-top: 3rem;
-        }
-        .service-card {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(102,126,234,0.1);
-        }
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transition: left 0.3s ease;
-        }
-        .service-card:hover::before {
-            left: 0;
-        }
-        .service-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-        .service-icon {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            display: block;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        }
-        .service-card h3 {
-            font-size: 1.6rem;
-            margin-bottom: 1.2rem;
-            color: #333;
-            font-weight: 600;
-        }
-        .service-card p {
-            color: #666;
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
-        }
-        .service-price {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 1.1rem;
-            background: rgba(102,126,234,0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            display: inline-block;
-        }
-        /* About Section */
-        .about {
-            padding: 80px 0;
-            background: #e9ecef;
-        }
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-        }
-        .about-text h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-        .about-text p {
-            margin-bottom: 1.5rem;
-            color: #666;
-            font-size: 1.1rem;
-            line-height: 1.7;
-        }
-        .about-image {
-            height: 400px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .about-image iframe {
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-        /* Contact Section */
-        .contact {
-            padding: 80px 0;
-            background: #e9ecef;
-        }
-        .contact-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-        }
-        .contact-form {
-            background: #f8f9fa;
-            padding: 2rem;
-            border-radius: 10px;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-            color: #333;
-        }
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        .form-group textarea {
-            height: 120px;
-            resize: vertical;
-        }
-        .contact-info h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #333;
-        }
-        .contact-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            color: #666;
-        }
-        .contact-item i {
-            font-size: 1.2rem;
-            color: #2a5298;
-            margin-right: 1rem;
-            width: 20px;
-        }
-        .map {
-            height: 300px;
-            border-radius: 10px;
-            margin-top: 2rem;
-        }
-        /* Footer */
-        footer {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            padding: 3rem 0 1rem;
-        }
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        .footer-section h3 {
-            margin-bottom: 1rem;
-            color: #ffd700;
-        }
-        .footer-section p,
-        .footer-section a {
-            color: #ccc;
-            text-decoration: none;
-            line-height: 1.6;
-        }
-        .footer-section a:hover {
-            color: #ffd700;
-        }
-        .footer-bottom {
-            border-top: 1px solid #444;
-            padding-top: 1rem;
-            text-align: center;
-            color: #ccc;
-        }
-        /* Admin Panel Styles */
-        .admin-login,
-        .admin-dashboard {
-            max-width: 600px;
-            margin: 120px auto;
-            padding: 2.5rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        }
-        .admin-dashboard {
-            max-width: 1000px;
-        }
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        .admin-header h2 {
-            color: #333;
-            margin: 0;
-            font-size: 2rem;
-        }
-        .admin-nav {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .admin-nav button {
-            padding: 12px 20px;
-            border: none;
-            background: #667eea;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .admin-nav button:hover {
-            background: #5a6fd8;
-            transform: translateY(-2px);
-        }
-        .admin-nav button.active {
-            background: #ffd700;
-            color: #333;
-        }
-        .admin-section {
-            display: none;
-            background: #f8f9fa;
-            padding: 2rem;
-            border-radius: 10px;
-            border: 1px solid #e9ecef;
-        }
-        .admin-section.active {
-            display: block;
-        }
-        .admin-section h3 {
-            color: #333;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-        .service-item,
-        .company-info-section {
-            background: white;
-            border: 1px solid #ddd;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .service-item h4 {
-            margin-bottom: 1rem;
-            color: #333;
-            font-size: 1.2rem;
-        }
-        .service-actions {
-            margin-top: 1rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-        .service-actions button,
-        .action-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .edit-btn {
-            background: #28a745;
-            color: white;
-        }
-        .edit-btn:hover {
-            background: #218838;
-        }
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-        }
-        .delete-btn:hover {
-            background: #c82333;
-        }
-        .add-btn {
-            background: #007bff;
-            color: white;
-            margin-bottom: 1.5rem;
-        }
-        .add-btn:hover {
-            background: #0056b3;
-        }
-        .form-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            margin-bottom: 2rem;
-        }
-        .form-section h4 {
-            margin-bottom: 1rem;
-            color: #333;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-        .firebase-status {
-            padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-            font-weight: 500;
-        }
-        .firebase-connected {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .firebase-disconnected {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .firebase-config {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-            margin-bottom: 1rem;
-        }
-        .logo-upload-section {
-            background: #e3f2fd;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid #90caf9;
-            margin-bottom: 1rem;
-        }
-        .logo-upload-section h5 {
-            color: #1565c0;
-            margin-bottom: 1rem;
-        }
-        .logo-preview {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-        .logo-preview img {
-            max-width: 150px;
-            max-height: 80px;
-            object-fit: contain;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            background: #f9f9f9;
-        }
-        .logo-current {
-            padding: 0.5rem;
-            background: #f0f0f0;
-            border-radius: 5px;
-            font-style: italic;
-            color: #666;
-        }
-        .logo-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .logo-actions button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .upload-btn {
-            background: #28a745;
-            color: white;
-        }
-        .upload-btn:hover {
-            background: #218838;
-        }
-        .remove-logo-btn {
-            background: #dc3545;
-            color: white;
-        }
-        .firebase-config textarea {
-            width: 100%;
-            height: 120px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 12px;
-        }
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .fade-in {
-            animation: fadeInUp 0.6s ease-out;
-        }
-        /* Page-specific styles */
-        .page {
-            display: none;
-            padding-top: 80px;
-            min-height: calc(100vh - 80px);
-        }
-        .page.active {
-            display: block;
-        }
-        .page-content {
-            padding: 2rem 0;
-        }
-        .hidden {
-            display: none !important;
-        }
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .hero-content .logo-large {
-                font-size: 6rem;
-            }
-            .hero-content .logo-large img {
-                max-height: 225px;
-                max-width: 450px;
-            }
-            .hero-tagline {
-                font-size: 1.2rem;
-            }
-            .hero-description {
-                font-size: 1rem;
-            }
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            .hero-stats {
-                position: static;
-                transform: none;
-                margin-top: 3rem;
-                flex-wrap: wrap;
-                gap: 2rem;
-            }
-            .services-grid {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            .service-card {
-                padding: 2rem;
-            }
-            nav ul {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background: #1e3c72;
-                padding: 1rem 0;
-            }
-            nav ul.active {
-                display: flex;
-            }
-            nav ul li {
-                margin: 0.5rem 0;
-                text-align: center;
-            }
-            .mobile-menu {
-                display: flex;
-            }
-            .about-content,
-            .contact-content {
-                grid-template-columns: 1fr;
-            }
-            .admin-nav {
-                grid-template-columns: 1fr;
-            }
-        }
-        @media (max-width: 480px) {
-            .hero-content .logo-large {
-                font-size: 5rem;
-            }
-            .hero-content .logo-large img {
-                max-height: 225px;
-                max-width: 450px;
-            }
-            .section-title {
-                font-size: 2rem;
-            }
-         
-            .admin-dashboard,
-            .admin-login {
-                margin: 100px 20px;
-                padding: 1.5rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo" onclick="handleLogoClick()">CarTax</div>
-                <nav>
-                    <ul id="nav-menu">
-                        <li><a onclick="showPage('home')">Strona Główna</a></li>
-                        <li><a onclick="showPage('about')">O Nas</a></li>
-                        <li><a onclick="showPage('services')">Usługi</a></li>
-                        <li><a onclick="showPage('contact')">Kontakt</a></li>
-                    </ul>
-                    <div class="mobile-menu" onclick="toggleMobileMenu()">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </nav>
-            </div>
-        </div>
-    </header>
-    <!-- Home Page -->
-    <div id="home" class="page active">
-        <section class="hero">
-            <div class="hero-background"></div>
-            <div class="hero-shapes">
-                <div class="hero-shape"></div>
-                <div class="hero-shape"></div>
-                <div class="hero-shape"></div>
-                <div class="hero-shape"></div>
-            </div>
-            <div class="hero-content">
-                <div class="logo-large" id="hero-logo">
-                    <span id="logo-text">CarTax</span>
-                    <img id="logo-image" style="display: none;" alt="CarTax Logo">
-                </div>
-                <div class="hero-tagline">Specjalistyczny warsztat elektroniczny w Gdańsku</div>
-                <div class="hero-description">
-                    Oferujemy kompleksowe usługi w zakresie elektroniki pojazdowej, diagnostyki komputerowej,
-                    programowania sterowników oraz instalacji taksometrów i kas fiskalnych.
-                </div>
-                <div class="hero-buttons">
-                    <a class="btn" onclick="showPage('services')">Nasze Usługi</a>
-                    <a class="btn btn-secondary" onclick="showPage('contact')">Skontaktuj się</a>
-                </div>
-            </div>
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <span class="stat-number" id="stat-experience">11+</span>
-                    <div class="stat-label">Lat doświadczenia</div>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="stat-clients">500+</span>
-                    <div class="stat-label">Zadowolonych klientów</div>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="stat-support">24/7</span>
-                    <div class="stat-label">Wsparcie techniczne</div>
-                </div>
-            </div>
-        </section>
-        <section class="services">
-            <div class="container">
-                <h2 class="section-title">Nasze Główne Usługi</h2>
-                <p class="section-subtitle">Świadczymy profesjonalne usługi w zakresie elektroniki samochodowej z wykorzystaniem najnowszych technologii</p>
-                <div class="services-grid" id="home-services">
-                    <!-- Services will be loaded here -->
-                </div>
-            </div>
-        </section>
-        <section class="about">
-            <div class="container">
-                <div class="about-content">
-                    <div class="about-text">
-                        <h2>CarTax - Twój Partner w Elektronice Samochodowej</h2>
-                        <p id="company-description-home">CarTax to specjalistyczny warsztat elektroniczny w Gdańsku oferujący kompleksowe usługi w zakresie elektroniki pojazdowej, w tym diagnostykę, programowanie i naprawę sterowników, instalacje taksometrów oraz obsługę kas fiskalnych dla taksówek i nie tylko.</p>
-                        <p>Nasza firma została założona w 2014 roku i od tego czasu świadczymy ekspertowskie usługi w dziedzinie elektroniki taksówkowej, urządzeń fiskalnych oraz diagnostyki pojazdów.</p>
-                        <a class="btn" onclick="showPage('about')">Dowiedz się więcej</a>
-                    </div>
-                    <div class="about-image">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2324.905!2d18.6152315!3d54.340261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fd74a4f0b5a8b3%3A0xdef123456789!2sB%C5%82o%C5%84ska+25%2F1%2C+80-732+Gda%C5%84sk!5e0!3m2!1sen!2spl!4v1722870000000!5m2!1sen!2spl" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-    <!-- About Page -->
-    <div id="about" class="page">
-        <div class="container">
-            <div class="page-content">
-                <h1>O Nas</h1>
-                <div class="about-content">
-                    <div class="about-text" id="about-text">
-                        <!-- Dynamic content will be loaded here -->
-                    </div>
-                    <div class="about-image">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2324.905!2d18.6152315!3d54.340261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fd74a4f0b5a8b3%3A0xdef123456789!2sB%C5%82o%C5%84ska+25%2F1%2C+80-732+Gda%C5%84sk!5e0!3m2!1sen!2spl!4v1722870000000!5m2!1sen!2spl" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Services Page -->
-    <div id="services" class="page">
-        <div class="container">
-            <div class="page-content">
-                <h1>Nasze Usługi</h1>
-                <div id="services-list" class="services-grid">
-                    <!-- Services will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Contact Page -->
-    <div id="contact" class="page">
-        <div class="container">
-            <div class="page-content">
-                <h1>Kontakt</h1>
-                <div class="contact-content">
-                    <div class="contact-form">
-                        <h3>Skontaktuj się z nami</h3>
-                        <form id="contact-form">
-                            <div class="form-group">
-                                <label for="name">Imię i nazwisko:</label>
-                                <input type="text" id="name" name="name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email:</label>
-                                <input type="email" id="email" name="email" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">Telefon:</label>
-                                <input type="tel" id="phone" name="phone">
-                            </div>
-                            <div class="form-group">
-                                <label for="message">Wiadomość:</label>
-                                <textarea id="message" name="message" required></textarea>
-                            </div>
-                            <button type="submit" class="btn">Wyślij wiadomość</button>
-                        </form>
-                    </div>
-                    <div class="contact-info" id="contact-info">
-                        <h3>Dane kontaktowe</h3>
-                        <div class="contact-item">
-                            <i>📍</i>
-                            <span>Ul. Błońska 25/1<br>80-732 Gdańsk, Poland</span>
-                        </div>
-                        <div class="contact-item">
-                            <i>📞</i>
-                            <span>505 898 692</span>
-                        </div>
-                        <div class="contact-item">
-                            <i>✉️</i>
-                            <span>info@cartax.pl</span>
-                        </div>
-                        <div class="contact-item">
-                            <i>🏢</i>
-                            <span>NIP: 583-316-75-25</span>
-                        </div>
-                     
-                        <div class="map">
-<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2324.905!2d18.6152315!3d54.340261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fd74a4f0b5a8b3%3A0xdef123456789!2sB%C5%82o%C5%84ska+25%2F1%2C+80-732+Gda%C5%84sk!5e0!3m2!1sen!2spl!4v1722870000000!5m2!1sen!2spl" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Admin Login -->
-    <div id="admin-login" class="page">
-        <div class="admin-login">
-            <h2>Panel Administracyjny</h2>
-            <form id="admin-login-form">
-                <div class="form-group">
-                    <label for="admin-password">Hasło:</label>
-                    <input type="password" id="admin-password" required>
-                </div>
-                <button type="submit" class="btn">Zaloguj</button>
-            </form>
-        </div>
-    </div>
-    <!-- Admin Dashboard -->
-    <div id="admin-dashboard" class="page">
-        <div class="admin-dashboard">
-            <div class="admin-header">
-                <h2>Panel Administracyjny CarTax</h2>
-                <button onclick="logout()" class="btn btn-secondary">Wyloguj</button>
-            </div>
-         
-            <div id="firebase-status" class="firebase-status firebase-disconnected">
-                🔴 Firebase rozłączony - dane zapisywane lokalnie
-            </div>
-         
-            <div class="admin-nav">
-                <button class="active" onclick="showAdminSection('services-admin')">Zarządzaj Usługami</button>
-                <button onclick="showAdminSection('company-admin')">Dane Firmy</button>
-                <button onclick="showAdminSection('content-admin')">Edytuj Treść</button>
-                <button onclick="showAdminSection('firebase-admin')">Konfiguracja Firebase</button>
-                <button onclick="showAdminSection('password-admin')">Zmień Hasło</button>
-            </div>
-            <!-- Services Management -->
-            <div id="services-admin" class="admin-section active">
-                <h3>Zarządzanie Usługami</h3>
-                <button onclick="showAddServiceForm()" class="action-btn add-btn">➕ Dodaj Nową Usługę</button>
-             
-                <div id="add-service-form" class="hidden form-section">
-                    <h4>Dodaj/Edytuj Usługę</h4>
-                    <form id="service-form">
-                        <input type="hidden" id="service-id">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="service-name">Nazwa usługi:</label>
-                                <input type="text" id="service-name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="service-icon">Ikona (emoji):</label>
-                                <input type="text" id="service-icon" placeholder="🔧">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="service-description">Opis:</label>
-                            <textarea id="service-description" required rows="4"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="service-price">Cena (opcjonalnie):</label>
-                            <input type="text" id="service-price" placeholder="np. od 150 zł">
-                        </div>
-                        <div style="margin-top: 1rem;">
-                            <button type="submit" class="btn">💾 Zapisz</button>
-                            <button type="button" onclick="cancelServiceForm()" class="btn btn-secondary">❌ Anuluj</button>
-                        </div>
-                    </form>
-                </div>
-                <div id="services-admin-list">
-                    <!-- Services will be loaded here -->
-                </div>
-            </div>
-            <!-- Company Info Management -->
-            <div id="company-admin" class="admin-section">
-                <h3>Zarządzanie Danymi Firmy</h3>
-                <form id="company-form" class="form-section">
-                    <h4>Logo Firmy</h4>
-                    <div class="logo-upload-section">
-                        <h5>🎨 Zarządzanie Logo</h5>
-                        <div class="logo-preview">
-                            <div>
-                                <strong>Aktualny wygląd:</strong>
-                                <div id="current-logo-preview" class="logo-current">
-                                    Tekst: "CarTax"
-                                </div>
-                            </div>
-                        </div>
-                     
-                        <div class="form-group">
-                            <label for="logo-file">Wybierz plik logo:</label>
-                            <input type="file" id="logo-file" accept="image/png, image/jpeg, image/svg+xml">
-                            <small style="color: #666;">Zalecane formaty: PNG, JPG, SVG. Wymiary: 300x150px</small>
-                        </div>
-                     
-                        <div class="logo-actions">
-                            <button type="button" onclick="previewLogo()" class="upload-btn">👁️ Podgląd</button>
-                            <button type="button" onclick="saveLogo()" class="btn">💾 Zapisz Logo</button>
-                            <button type="button" onclick="removeLogo()" class="remove-logo-btn">🗑️ Usuń Logo</button>
-                        </div>
-                    </div>
-                    <h4>Podstawowe Informacje</h4>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="company-name">Nazwa firmy:</label>
-                            <input type="text" id="company-name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="company-nip">NIP:</label>
-                            <input type="text" id="company-nip" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="company-phone">Telefon:</label>
-                            <input type="tel" id="company-phone" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="company-email">Email:</label>
-                            <input type="email" id="company-email" required>
-                        </div>
-                    </div>
-                 
-                    <h4>Adres</h4>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="company-address">Ulica i numer:</label>
-                            <input type="text" id="company-address" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="company-city">Miasto z kodem:</label>
-                            <input type="text" id="company-city" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="company-country">Kraj:</label>
-                            <input type="text" id="company-country" required>
-                        </div>
-                    </div>
-                    <h4>Dodatkowe Informacje</h4>
-                    <div class="form-group">
-                        <label for="company-description">Opis firmy:</label>
-                        <textarea id="company-description" rows="4"></textarea>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="company-hours">Godziny pracy:</label>
-                            <input type="text" id="company-hours" placeholder="Pon-Pt: 8:00-17:00">
-                        </div>
-                        <div class="form-group">
-                            <label for="company-founded">Rok założenia:</label>
-                            <input type="text" id="company-founded" placeholder="2014">
-                        </div>
-                    </div>
-                 
-                    <h4>Statystyki (wyświetlane na stronie głównej)</h4>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="company-experience">Lata doświadczenia:</label>
-                            <input type="text" id="company-experience" placeholder="11+">
-                        </div>
-                        <div class="form-group">
-                            <label for="company-clients">Liczba klientów:</label>
-                            <input type="text" id="company-clients" placeholder="500+">
-                        </div>
-                        <div class="form-group">
-                            <label for="company-support">Wsparcie:</label>
-                            <input type="text" id="company-support" placeholder="24/7">
-                        </div>
-                    </div>
-                    <h4>Wygląd Strony</h4>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="body-bg-color">Kolor tła strony:</label>
-                            <input type="color" id="body-bg-color">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn">💾 Zapisz Dane Firmy</button>
-                </form>
-            </div>
-            <!-- Content Editing -->
-            <div id="content-admin" class="admin-section">
-                <h3>Edytuj Treść Stron</h3>
-                <form id="content-form" class="form-section">
-                    <h4>Zakładka "O Nas"</h4>
-                    <div class="form-group">
-                        <label for="history-text">Historia CarTax:</label>
-                        <textarea id="history-text" rows="4"></textarea>
-                    </div>
-                    <h4>Nasze Doświadczenie</h4>
-                    <div class="form-group">
-                        <label for="experience-title">Tytuł:</label>
-                        <input type="text" id="experience-title">
-                    </div>
-                    <div class="form-group">
-                        <label for="experience-desc">Opis:</label>
-                        <textarea id="experience-desc" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="experience-list">Lista punktów (każdy w nowej linii):</label>
-                        <textarea id="experience-list" rows="6"></textarea>
-                    </div>
-                    <h4>Dlaczego CarTax?</h4>
-                    <div class="form-group">
-                        <label for="why-title">Tytuł:</label>
-                        <input type="text" id="why-title">
-                    </div>
-                    <div class="form-group">
-                        <label for="why-desc">Opis:</label>
-                        <textarea id="why-desc" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="why-list">Lista punktów (każdy w nowej linii):</label>
-                        <textarea id="why-list" rows="6"></textarea>
-                    </div>
-                    <button type="submit" class="btn">💾 Zapisz Treść</button>
-                </form>
-            </div>
-            <!-- Firebase Configuration -->
-            <div id="firebase-admin" class="admin-section">
-                <h3>Konfiguracja Firebase</h3>
-                <div class="firebase-config">
-                    <h4>Status połączenia:</h4>
-                    <div id="firebase-status-detail" class="firebase-status firebase-disconnected">
-                        🔴 Firebase rozłączony - dane zapisywane lokalnie
-                    </div>
-                 
-                    <h4>Konfiguracja Firebase (opcjonalna):</h4>
-                    <p>Firebase automatycznie połączy się przy następnym uruchomieniu. Wklej konfigurację tylko raz:</p>
-                    <textarea id="firebase-config-input" placeholder='{
-  "apiKey": "your-api-key",
-  "authDomain": "your-project.firebaseapp.com",
-  "databaseURL": "https://your-project.firebaseio.com",
-  "projectId": "your-project-id",
-  "storageBucket": "your-project.appspot.com",
-  "messagingSenderId": "123456789",
-  "appId": "your-app-id"
-}'></textarea>
-                    <button onclick="connectFirebase()" class="btn">🔗 Połącz z Firebase</button>
-                    <button onclick="disconnectFirebase()" class="btn btn-secondary">❌ Rozłącz Firebase</button>
-                </div>
-             
-                <div style="margin-top: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 5px;">
-                    <h4>📋 Instrukcja konfiguracji Firebase:</h4>
-                    <ol style="margin-left: 1.5rem;">
-                        <li>Przejdź do <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></li>
-                        <li>Kliknij "Dodaj projekt" lub wybierz istniejący</li>
-                        <li>W lewym menu wybierz "Firestore Database"</li>
-                        <li>Kliknij "Utwórz bazę danych"</li>
-                        <li>Wybierz tryb testowy (na początek)</li>
-                        <li>Przejdź do "Ustawienia projektu" (ikona koła zębatego)</li>
-                        <li>Scrolluj w dół do "Twoje aplikacje"</li>
-                        <li>Kliknij ikonę "</>" (Web app)</li>
-                        <li>Nadaj nazwę aplikacji i kliknij "Zarejestruj"</li>
-                        <li>Skopiuj konfigurację (obiekt config) i wklej powyżej</li>
-                    </ol>
-                 
-                    <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">
-                        <h5>🔐 Bezpieczeństwo:</h5>
-                        <p><strong>Hasło administratora jest teraz szyfrowane!</strong></p>
-                        <ul style="margin-left: 1rem;">
-                            <li>✅ Hasło zapisywane w postaci zaszyfrowanej</li>
-                            <li>✅ Niemożliwe odczytanie hasła z bazy Firebase</li>
-                            <li>✅ Automatyczna migracja starych haseł</li>
-                            <li>🔒 Pamiętaj: Ustaw silne hasło!</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <!-- Password Change -->
-            <div id="password-admin" class="admin-section">
-                <h3>Zmiana Hasła Administratora</h3>
-                <form id="password-change-form" class="form-section">
-                    <div class="form-group">
-                        <label for="old-password">Stare hasło:</label>
-                        <input type="password" id="old-password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-password">Nowe hasło:</label>
-                        <input type="password" id="new-password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirm-password">Potwierdź nowe hasło:</label>
-                        <input type="password" id="confirm-password" required>
-                    </div>
-                    <button type="submit" class="btn">🔐 Zmień hasło</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content" id="footer-content">
-                <div class="footer-section">
-                    <h3>CarTax s.c.</h3>
-                    <p>Specjalistyczny warsztat elektroniczny w Gdańsku oferujący kompleksowe usługi w zakresie elektroniki pojazdowej, diagnostyki, programowania sterowników i instalacji taksometrów.</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Kontakt</h3>
-                    <p>Ul. Błońska 25/1<br>80-732 Gdańsk, Poland</p>
-                    <p>Tel: 505 898 692</p>
-                    <p>Email: info@cartax.pl</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Informacje</h3>
-                    <p>NIP: 583-316-75-25</p>
-                    <p>Godziny pracy:<br>Pon-Pt: 8:00-17:00<br>Sob: 9:00-14:00</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 CarTax s.c. Wszystkie prawa zastrzeżone. | <a href="#" onclick="showPage('admin-login')" style="color: #666; text-decoration: none;">⚙️</a></p>
-            </div>
-        </div>
-    </footer>
-    <script>
-        // Data Storage
-        let services = [
-            {
-                id: 1,
-                name: "Diagnostyka Samochodowa",
-                description: "Profesjonalna diagnostyka wszystkich systemów elektronicznych pojazdu przy użyciu najnowszych urządzeń diagnostycznych. Sprawdzamy silnik, skrzynię biegów, ABS, airbagi i inne systemy.",
-                price: "od 80 zł",
-                icon: "🔧"
-            },
-            {
-                id: 2,
-                name: "Programowanie Sterowników",
-                description: "Kompleksowe programowanie i kodowanie sterowników samochodowych, aktualizacje oprogramowania, adaptacje po wymianie części.",
-                price: "od 150 zł",
-                icon: "💻"
-            },
-            {
-                id: 3,
-                name: "Naprawy Sterowników",
-                description: "Profesjonalne naprawy elektronicznych sterowników samochodowych, regeneracja uszkodzonych modułów, wymiana komponentów.",
-                price: "wycena indywidualna",
-                icon: "🔧"
-            },
-            {
-                id: 4,
-                name: "Instalacje Taksometrów",
-                description: "Montaż i serwis taksometrów, kompletne instalacje taksówkowe zgodne z wymogami prawa, legalizacja urządzeń.",
-                price: "od 500 zł",
-                icon: "🚕"
-            },
-            {
-                id: 5,
-                name: "Kasy Fiskalne i Drukarki",
-                description: "Sprzedaż, instalacja i serwis kas fiskalnych, drukarek fiskalnych, kas systemowych oraz terminali płatniczych.",
-                price: "od 300 zł",
-                icon: "🧾"
-            },
-            {
-                id: 6,
-                name: "Elektronika Pojazdowa",
-                description: "Kompleksowe naprawy elektroniki samochodowej, instalacje systemów audio, alarmów, central zamkowych i innych urządzeń elektronicznych.",
-                price: "wycena indywidualna",
-                icon: "⚡"
-            }
-        ];
-        let companyInfo = {
-            name: "CarTax s.c.",
-            nip: "583-316-75-25",
-            address: "Ul. Błońska 25/1",
-            city: "80-732 Gdańsk",
-            country: "Poland",
-            phone: "505 898 692",
-            email: "info@cartax.pl",
-            description: "Specjalistyczny warsztat elektroniczny w Gdańsku oferujący kompleksowe usługi w zakresie elektroniki pojazdowej, diagnostyki, programowania sterowników i instalacji taksometrów.",
-            workingHours: "Pon-Pt: 8:00-17:00, Sob: 9:00-14:00",
-            founded: "2014",
-            experience: "11+",
-            clients: "500+",
-            support: "24/7",
-            logoUrl: "", // New field for logo URL
-            bodyBgColor: "#f8f9fa"
-        };
-        let aboutContent = {
-            historyText: "CarTax s.c. został założony w 2014 roku jako specjalistyczny warsztat elektroniczny, koncentrujący się na obsłudze branży taksówkarskiej oraz szeroko rozumianej elektronice samochodowej.",
-            experienceTitle: "Nasze Doświadczenie",
-            experienceDesc: "Przez lata naszej działalności zdobyliśmy szerokie doświadczenie w zakresie:",
-            experienceList: [
-                "Diagnostyki komputerowej wszystkich marek pojazdów",
-                "Programowania i kodowania sterowników",
-                "Instalacji i serwisu taksometrów",
-                "Kompleksowych instalacji taksówkowych",
-                "Obsługi kas fiskalnych i terminali płatniczych"
-            ],
-            whyTitle: "Dlaczego CarTax?",
-            whyDesc: "Wybierając nasz warsztat, zyskujesz:",
-            whyList: [
-                "Profesjonalną obsługę i doradztwo",
-                "Nowoczesny sprzęt diagnostyczny",
-                "Konkurencyjne ceny",
-                "Szybki czas realizacji",
-                "Gwarancję na wykonane usługi"
-            ]
-        };
-        let adminPasswordHash = hashPassword("haslo");
-        let isLoggedIn = false;
-        let firebaseApp = null;
-        let db = null;
-        let storage = null;
-        let firebaseConfig = null;
-        let firebaseConnected = false;
-        // Enhanced Firebase Manager with auto-reconnect
-        class FirebaseManager {
-            constructor() {
-                this.connected = false;
-                this.config = null;
-            }
-            async initializeFirebase(config) {
-                try {
-                    this.config = config;
-                    firebaseConfig = config;
-                    firebaseApp = firebase.initializeApp(config);
-                    db = firebaseApp.firestore();
-                    storage = firebaseApp.storage();
-                    this.connected = true;
-                    firebaseConnected = true;
-                 
-                    // Save config for auto-reconnect
-                    localStorage.setItem('cartax_firebase_config', JSON.stringify(config));
-                 
-                    this.updateFirebaseStatus();
-                    console.log('Firebase connected successfully');
-                    return true;
-                } catch (error) {
-                    console.error('Firebase initialization failed:', error);
-                    this.connected = false;
-                    return false;
-                }
-            }
-            async autoReconnect() {
-                try {
-                    const savedConfig = localStorage.getItem('cartax_firebase_config');
-                    if (savedConfig) {
-                        const config = JSON.parse(savedConfig);
-                        await this.initializeFirebase(config);
-                        console.log('Firebase auto-reconnected');
-                        return true;
-                    }
-                } catch (error) {
-                    console.log('Auto-reconnect failed, using local storage');
-                }
-                return false;
-            }
-            disconnect() {
-                this.connected = false;
-                this.config = null;
-                firebaseConnected = false;
-                firebaseConfig = null;
-                firebaseApp = null;
-                db = null;
-                storage = null;
-                localStorage.removeItem('cartax_firebase_config');
-                this.updateFirebaseStatus();
-            }
-            updateFirebaseStatus() {
-                const statusEl = document.getElementById('firebase-status');
-                const statusDetailEl = document.getElementById('firebase-status-detail');
-                const statusText = this.connected ?
-                    '🟢 Firebase połączony - dane synchronizowane' :
-                    '🔴 Firebase rozłączony - dane zapisywane lokalnie';
-                const statusClass = this.connected ? 'firebase-connected' : 'firebase-disconnected';
-             
-                if (statusEl) {
-                    statusEl.className = `firebase-status ${statusClass}`;
-                    statusEl.textContent = statusText;
-                }
-                if (statusDetailEl) {
-                    statusDetailEl.className = `firebase-status ${statusClass}`;
-                    statusDetailEl.textContent = statusText;
-                }
-                // Update Firebase config textarea if config exists
-                const configInput = document.getElementById('firebase-config-input');
-                if (configInput && this.config) {
-                    configInput.value = JSON.stringify(this.config, null, 2);
-                }
-            }
-            async saveData(data) {
-                if (this.connected && db) {
-                    try {
-                        await db.collection('cartax').doc('data').set(data);
-                        console.log('Data saved to Firestore');
-                     
-                        // Also save locally as backup
-                        localStorage.setItem('cartax_data', JSON.stringify(data));
-                        return true;
-                    } catch (error) {
-                        console.error('Firestore save failed, using localStorage:', error);
-                        localStorage.setItem('cartax_data', JSON.stringify(data));
-                        return true;
-                    }
-                } else {
-                    // Fallback to localStorage
-                    localStorage.setItem('cartax_data', JSON.stringify(data));
-                    return true;
-                }
-            }
-            async loadData() {
-                if (this.connected && db) {
-                    try {
-                        const doc = await db.collection('cartax').doc('data').get();
-                        if (doc.exists) {
-                            console.log('Data loaded from Firestore');
-                            return doc.data();
-                        } else {
-                            console.log('No data in Firestore, using localStorage');
-                            const saved = localStorage.getItem('cartax_data');
-                            return saved ? JSON.parse(saved) : null;
-                        }
-                    } catch (error) {
-                        console.error('Firestore load failed, using localStorage:', error);
-                        const saved = localStorage.getItem('cartax_data');
-                        return saved ? JSON.parse(saved) : null;
-                    }
-                } else {
-                    // Fallback to localStorage
-                    const saved = localStorage.getItem('cartax_data');
-                    return saved ? JSON.parse(saved) : null;
-                }
-            }
-        }
-        const firebaseManager = new FirebaseManager();
-        // Logo click counter for admin access
-        let logoClickCount = 0;
-        let logoClickTimer = null;
-        function handleLogoClick() {
-            logoClickCount++;
-         
-            // Reset counter after 3 seconds if not reached 5 clicks
-            if (logoClickTimer) clearTimeout(logoClickTimer);
-            logoClickTimer = setTimeout(() => {
-                logoClickCount = 0;
-            }, 3000);
-         
-            // If clicked 5 times, go to admin
-            if (logoClickCount >= 5) {
-                logoClickCount = 0;
-                showPage('admin-login');
-            }
-        }
-        // Navigation Functions
-        function showPage(pageId) {
-            const pages = document.querySelectorAll('.page');
-            pages.forEach(page => page.classList.remove('active'));
-         
-            document.getElementById(pageId).classList.add('active');
-         
-            if (pageId === 'services') {
-                loadServices();
-            }
-            if (pageId === 'about') {
-                updateAboutContent();
-            }
-         
-            document.getElementById('nav-menu').classList.remove('active');
-        }
-        function toggleMobileMenu() {
-            const navMenu = document.getElementById('nav-menu');
-            navMenu.classList.toggle('active');
-        }
-        // Services Functions
-        function loadServices() {
-            const servicesList = document.getElementById('services-list');
-            const homeServices = document.getElementById('home-services');
-         
-            // Clear both containers
-            if (servicesList) servicesList.innerHTML = '';
-            if (homeServices) homeServices.innerHTML = '';
-         
-            services.forEach((service, index) => {
-                const serviceCard = document.createElement('div');
-                serviceCard.className = 'service-card fade-in';
-                serviceCard.style.animationDelay = `${index * 0.1}s`;
-                serviceCard.innerHTML = `
-                    <div class="service-icon">${service.icon}</div>
-                    <h3>${service.name}</h3>
-                    <p>${service.description}</p>
-                    ${service.price ? `<div class="service-price">${service.price}</div>` : ''}
-                `;
-             
-                if (servicesList) servicesList.appendChild(serviceCard.cloneNode(true));
-                if (homeServices) homeServices.appendChild(serviceCard);
-            });
-        }
-        function loadAdminServices() {
-            const adminList = document.getElementById('services-admin-list');
-            adminList.innerHTML = '';
-         
-            services.forEach(service => {
-                const serviceItem = document.createElement('div');
-                serviceItem.className = 'service-item';
-                serviceItem.innerHTML = `
-                    <h4>${service.icon} ${service.name}</h4>
-                    <p>${service.description}</p>
-                    ${service.price ? `<p><strong>Cena:</strong> ${service.price}</p>` : ''}
-                    <div class="service-actions">
-                        <button class="edit-btn" onclick="editService(${service.id})">✏️ Edytuj</button>
-                        <button class="delete-btn" onclick="deleteService(${service.id})">🗑️ Usuń</button>
-                    </div>
-                `;
-                adminList.appendChild(serviceItem);
-            });
-        }
-        function showAddServiceForm() {
-            document.getElementById('add-service-form').classList.remove('hidden');
-            document.getElementById('service-form').reset();
-            document.getElementById('service-id').value = '';
-        }
-        function cancelServiceForm() {
-            document.getElementById('add-service-form').classList.add('hidden');
-            document.getElementById('service-form').reset();
-        }
-        function editService(id) {
-            const service = services.find(s => s.id === id);
-            if (service) {
-                document.getElementById('service-id').value = service.id;
-                document.getElementById('service-name').value = service.name;
-                document.getElementById('service-description').value = service.description;
-                document.getElementById('service-price').value = service.price || '';
-                document.getElementById('service-icon').value = service.icon;
-                document.getElementById('add-service-form').classList.remove('hidden');
-            }
-        }
-        function deleteService(id) {
-            if (confirm('Czy na pewno chcesz usunąć tę usługę?')) {
-                services = services.filter(s => s.id !== id);
-                loadAdminServices();
-                loadServices();
-                saveData();
-            }
-        }
-        // Admin Functions
-        function showAdminSection(sectionId) {
-            const sections = document.querySelectorAll('.admin-section');
-            sections.forEach(section => section.classList.remove('active'));
-         
-            document.getElementById(sectionId).classList.add('active');
-         
-            const buttons = document.querySelectorAll('.admin-nav button');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-         
-            if (sectionId === 'services-admin') {
-                loadAdminServices();
-            } else if (sectionId === 'company-admin') {
-                loadCompanyForm();
-            } else if (sectionId === 'content-admin') {
-                loadContentForm();
-            } else if (sectionId === 'firebase-admin') {
-                firebaseManager.updateFirebaseStatus();
-            }
-        }
-        function loadCompanyForm() {
-            document.getElementById('company-name').value = companyInfo.name;
-            document.getElementById('company-nip').value = companyInfo.nip;
-            document.getElementById('company-phone').value = companyInfo.phone;
-            document.getElementById('company-email').value = companyInfo.email;
-            document.getElementById('company-address').value = companyInfo.address;
-            document.getElementById('company-city').value = companyInfo.city;
-            document.getElementById('company-country').value = companyInfo.country;
-            document.getElementById('company-description').value = companyInfo.description;
-            document.getElementById('company-hours').value = companyInfo.workingHours;
-            document.getElementById('company-founded').value = companyInfo.founded;
-            document.getElementById('company-experience').value = companyInfo.experience;
-            document.getElementById('company-clients').value = companyInfo.clients;
-            document.getElementById('company-support').value = companyInfo.support;
-            document.getElementById('body-bg-color').value = companyInfo.bodyBgColor;
-            document.getElementById('logo-file').value = '';
-            updateLogoPreview();
-        }
-        function loadContentForm() {
-            document.getElementById('history-text').value = aboutContent.historyText;
-            document.getElementById('experience-title').value = aboutContent.experienceTitle;
-            document.getElementById('experience-desc').value = aboutContent.experienceDesc;
-            document.getElementById('experience-list').value = aboutContent.experienceList.join('\n');
-            document.getElementById('why-title').value = aboutContent.whyTitle;
-            document.getElementById('why-desc').value = aboutContent.whyDesc;
-            document.getElementById('why-list').value = aboutContent.whyList.join('\n');
-        }
-        function previewLogo() {
-            const fileInput = document.getElementById('logo-file');
-            const previewDiv = document.getElementById('current-logo-preview');
-         
-            if (fileInput.files && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                if (file.type.startsWith('image/')) {
-                    const localUrl = URL.createObjectURL(file);
-                    previewDiv.innerHTML = `<img src="${localUrl}" style="max-width: 150px; max-height: 80px; object-fit: contain; border: 2px solid #ddd; border-radius: 5px;" onload="URL.revokeObjectURL(this.src);">`;
-                } else {
-                    previewDiv.innerHTML = '<span style="color: red;">❌ Nieprawidłowy format pliku</span>';
-                }
-            } else if (companyInfo.logoUrl) {
-                previewDiv.innerHTML = `<img src="${companyInfo.logoUrl}" style="max-width: 150px; max-height: 80px; object-fit: contain; border: 2px solid #ddd; border-radius: 5px;" onerror="this.style.display=\'none\'; this.nextSibling.style.display=\'block\';" onload="this.nextSibling.style.display=\'none\';"><span style="color: red; display: none;">❌ Błąd ładowania obrazu</span>`;
-            } else {
-                previewDiv.innerHTML = 'Tekst: "CarTax"';
-            }
-        }
-        async function saveLogo() {
-            const fileInput = document.getElementById('logo-file');
-            const file = fileInput.files[0];
-         
-            if (file) {
-                if (!firebaseConnected || !storage) {
-                    alert('❌ Aby przesłać logo, połącz z Firebase!');
-                    return;
-                }
-                if (!file.type.startsWith('image/')) {
-                    alert('❌ Proszę wybrać plik obrazu (PNG, JPG, SVG).');
-                    return;
-                }
-             
-                try {
-                    const storageRef = storage.ref('logos/' + Date.now() + '_' + file.name);
-                    const snapshot = await storageRef.put(file);
-                    const url = await snapshot.ref.getDownloadURL();
-                 
-                    companyInfo.logoUrl = url;
-                    await saveData();
-                    updateLogoDisplay();
-                    updateLogoPreview();
-                    fileInput.value = '';
-                    alert('✅ Logo zostało przesłane do Firebase i zapisane pomyślnie!');
-                } catch (error) {
-                    console.error('Błąd przesyłania logo:', error);
-                    alert('❌ Błąd podczas przesyłania logo: ' + error.message);
-                }
-            } else {
-                alert('❌ Proszę wybrać plik logo do przesłania.');
-            }
-        }
-        function removeLogo() {
-            if (confirm('Czy na pewno chcesz usunąć logo? Zostanie przywrócony tekst "CarTax".')) {
-                companyInfo.logoUrl = '';
-                saveData();
-                updateLogoDisplay();
-                updateLogoPreview();
-                alert('✅ Logo zostało usunięte.');
-            }
-        }
-        function updateLogoDisplay() {
-            const logoText = document.getElementById('logo-text');
-            const logoImage = document.getElementById('logo-image');
-         
-            if (companyInfo.logoUrl) {
-                logoText.style.display = 'none';
-                logoImage.style.display = 'block';
-                logoImage.src = companyInfo.logoUrl;
-                logoImage.onerror = function() {
-                    // If image fails to load, show text
-                    logoText.style.display = 'block';
-                    logoImage.style.display = 'none';
-                };
-            } else {
-                logoText.style.display = 'block';
-                logoImage.style.display = 'none';
-            }
-        }
-        function updateLogoPreview() {
-            const previewDiv = document.getElementById('current-logo-preview');
-         
-            if (companyInfo.logoUrl) {
-                previewDiv.innerHTML = `<img src="${companyInfo.logoUrl}" style="max-width: 150px; max-height: 80px; object-fit: contain; border: 2px solid #ddd; border-radius: 5px;" onerror="this.style.display='none'; this.nextSibling.style.display='block';" onload="this.nextSibling.style.display='none';"><span style="color: red; display: none;">❌ Błąd ładowania obrazu</span>`;
-            } else {
-                previewDiv.innerHTML = 'Tekst: "CarTax"';
-            }
-        }
-        function connectFirebase() {
-            const configInput = document.getElementById('firebase-config-input').value.trim();
-            try {
-                let config;
-             
-                // Try to parse as JSON first
-                try {
-                    config = JSON.parse(configInput);
-                } catch (jsonError) {
-                    // If JSON fails, try to evaluate as JavaScript object
-                    try {
-                        config = eval('(' + configInput + ')');
-                    } catch (evalError) {
-                        throw new Error('Invalid format');
-                    }
-                }
-             
-                // Validate required fields
-                const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket'];
-                for (let field of requiredFields) {
-                    if (!config[field]) {
-                        throw new Error(`Missing required field: ${field}`);
-                    }
-                }
-             
-                firebaseManager.initializeFirebase(config);
-                alert('✅ Firebase został połączony pomyślnie!\n\nKonfiguracja zostanie automatycznie przywrócona przy następnym uruchomieniu.');
-                saveData();
-            } catch (error) {
-                alert('❌ Błąd konfiguracji Firebase: ' + error.message + '\n\nSprawdź czy wszystkie klucze są w cudzysłowach i czy składnia jest poprawna.');
-            }
-        }
-        function disconnectFirebase() {
-            firebaseManager.disconnect();
-            document.getElementById('firebase-config-input').value = '';
-            alert('Firebase został rozłączony. Konfiguracja została usunięta.');
-            saveData();
-        }
-        function updateWebsiteContent() {
-            // Update hero stats
-            document.getElementById('stat-experience').textContent = companyInfo.experience;
-            document.getElementById('stat-clients').textContent = companyInfo.clients;
-            document.getElementById('stat-support').textContent = companyInfo.support;
-            // Update footer
-            const footerContent = document.getElementById('footer-content');
-            if (footerContent) {
-                footerContent.innerHTML = `
-                    <div class="footer-section">
-                        <h3>${companyInfo.name}</h3>
-                        <p>${companyInfo.description}</p>
-                    </div>
-                    <div class="footer-section">
-                        <h3>Kontakt</h3>
-                        <p>${companyInfo.address}<br>${companyInfo.city}, ${companyInfo.country}</p>
-                        <p>Tel: ${companyInfo.phone}</p>
-                        <p>Email: ${companyInfo.email}</p>
-                    </div>
-                    <div class="footer-section">
-                        <h3>Informacje</h3>
-                        <p>NIP: ${companyInfo.nip}</p>
-                        <p>Godziny pracy:<br>${companyInfo.workingHours}</p>
-                    </div>
-                `;
-            }
-            // Update contact page
-            const contactInfo = document.getElementById('contact-info');
-            if (contactInfo) {
-                contactInfo.innerHTML = `
-                    <h3>Dane kontaktowe</h3>
-                    <div class="contact-item">
-                        <i>📍</i>
-                        <span>${companyInfo.address}<br>${companyInfo.city}, ${companyInfo.country}</span>
-                    </div>
-                    <div class="contact-item">
-                        <i>📞</i>
-                        <span>${companyInfo.phone}</span>
-                    </div>
-                    <div class="contact-item">
-                        <i>✉️</i>
-                        <span>${companyInfo.email}</span>
-                    </div>
-                    <div class="contact-item">
-                        <i>🏢</i>
-                        <span>NIP: ${companyInfo.nip}</span>
-                    </div>
-                    <div class="map">
-<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2324.905!2d18.6152315!3d54.340261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fd74a4f0b5a8b3%3A0xdef123456789!2sB%C5%82o%C5%84ska+25%2F1%2C+80-732+Gda%C5%84sk!5e0!3m2!1sen!2spl!4v1722870000000!5m2!1sen!2spl" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
-                `;
-            }
-            // Update company description on home page
-            const companyDescHome = document.getElementById('company-description-home');
-            if (companyDescHome) {
-                companyDescHome.textContent = companyInfo.description;
-            }
-            // Update logo display
-            updateLogoDisplay();
-            // Update body background color
-            document.body.style.backgroundColor = companyInfo.bodyBgColor;
-        }
-        function updateAboutContent() {
-            const aboutText = document.getElementById('about-text');
-            if (aboutText) {
-                aboutText.innerHTML = `
-                    <h2>Historia CarTax</h2>
-                    <p>${aboutContent.historyText}</p>
-                    <h3>${aboutContent.experienceTitle}</h3>
-                    <p>${aboutContent.experienceDesc}</p>
-                    <ul style="margin: 1rem 0; padding-left: 2rem;">
-                        ${aboutContent.experienceList.map(item => `<li>${item}</li>`).join('')}
-                    </ul>
-                    <h3>${aboutContent.whyTitle}</h3>
-                    <p>${aboutContent.whyDesc}</p>
-                    <ul style="margin: 1rem 0; padding-left: 2rem;">
-                        ${aboutContent.whyList.map(item => `<li>${item}</li>`).join('')}
-                    </ul>
-                `;
-            }
-        }
-        function logout() {
-            isLoggedIn = false;
-            showPage('home');
-        }
-        // Password hashing function (simple hash for demo)
-        function hashPassword(password) {
-            let hash = 0;
-            for (let i = 0; i < password.length; i++) {
-                const char = password.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // Convert to 32-bit integer
-            }
-            return hash.toString();
-        }
-        // Enhanced Data Management with password hashing
-        async function saveData() {
-            const data = {
-                services: services,
-                adminPasswordHash: adminPasswordHash, // Save hashed password
-                companyInfo: companyInfo,
-                aboutContent: aboutContent,
-                firebaseConfig: firebaseConfig
-            };
-         
-            try {
-                await firebaseManager.saveData(data);
-                console.log('Data saved successfully');
-            } catch (error) {
-                console.error('Error saving data:', error);
-            }
-        }
-        async function loadData() {
-            try {
-                // First try to auto-reconnect Firebase
-                await firebaseManager.autoReconnect();
-             
-                // Then load data
-                const data = await firebaseManager.loadData();
-                if (data) {
-                    if (data.services) services = data.services;
-                    // Load hashed password
-                    if (data.adminPasswordHash) {
-                        adminPasswordHash = data.adminPasswordHash;
-                    } else if (data.adminPassword) {
-                        // Migrate old plain text password
-                        adminPasswordHash = hashPassword(data.adminPassword);
-                    }
-                    if (data.companyInfo) companyInfo = data.companyInfo;
-                    if (data.aboutContent) aboutContent = data.aboutContent;
-                } else {
-                    // If no data, set default hash
-                    adminPasswordHash = hashPassword("haslo");
-                }
-                updateWebsiteContent();
-                updateAboutContent();
-            } catch (error) {
-                console.error('Error loading data:', error);
-            }
-        }
-        // Enhanced password verification
-        function verifyPassword(inputPassword) {
-            return hashPassword(inputPassword) === adminPasswordHash;
-        }
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            loadServices();
-            updateAboutContent();
-         
-            // Contact form
-            document.getElementById('contact-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                alert('Dziękujemy za wiadomość! Skontaktujemy się z Państwem wkrótce.');
-                this.reset();
-            });
-         
-            // Admin login with enhanced security
-            document.getElementById('admin-login-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const password = document.getElementById('admin-password').value;
-                if (verifyPassword(password)) {
-                    isLoggedIn = true;
-                    showPage('admin-dashboard');
-                    loadAdminServices();
-                    firebaseManager.updateFirebaseStatus();
-                } else {
-                    alert('Nieprawidłowe hasło!');
-                }
-            });
-         
-            // Service form
-            document.getElementById('service-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-             
-                const id = document.getElementById('service-id').value;
-                const name = document.getElementById('service-name').value;
-                const description = document.getElementById('service-description').value;
-                const price = document.getElementById('service-price').value;
-                const icon = document.getElementById('service-icon').value;
-             
-                if (id) {
-                    // Edit existing service
-                    const service = services.find(s => s.id == id);
-                    if (service) {
-                        service.name = name;
-                        service.description = description;
-                        service.price = price;
-                        service.icon = icon;
-                    }
-                } else {
-                    // Add new service
-                    const newId = Math.max(...services.map(s => s.id)) + 1;
-                    services.push({
-                        id: newId,
-                        name: name,
-                        description: description,
-                        price: price,
-                        icon: icon
-                    });
-                }
-             
-                saveData();
-                loadAdminServices();
-                loadServices();
-                cancelServiceForm();
-                alert('✅ Usługa została zapisana!');
-            });
-            // Company form
-            document.getElementById('company-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-             
-                companyInfo.name = document.getElementById('company-name').value;
-                companyInfo.nip = document.getElementById('company-nip').value;
-                companyInfo.phone = document.getElementById('company-phone').value;
-                companyInfo.email = document.getElementById('company-email').value;
-                companyInfo.address = document.getElementById('company-address').value;
-                companyInfo.city = document.getElementById('company-city').value;
-                companyInfo.country = document.getElementById('company-country').value;
-                companyInfo.description = document.getElementById('company-description').value;
-                companyInfo.workingHours = document.getElementById('company-hours').value;
-                companyInfo.founded = document.getElementById('company-founded').value;
-                companyInfo.experience = document.getElementById('company-experience').value;
-                companyInfo.clients = document.getElementById('company-clients').value;
-                companyInfo.support = document.getElementById('company-support').value;
-                companyInfo.bodyBgColor = document.getElementById('body-bg-color').value;
-             
-                // Note: Logo is saved separately via saveLogo() function
-             
-                saveData();
-                updateWebsiteContent();
-                alert('✅ Dane firmy zostały zaktualizowane!');
-            });
-         
-            // Content form
-            document.getElementById('content-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-             
-                aboutContent.historyText = document.getElementById('history-text').value;
-                aboutContent.experienceTitle = document.getElementById('experience-title').value;
-                aboutContent.experienceDesc = document.getElementById('experience-desc').value;
-                aboutContent.experienceList = document.getElementById('experience-list').value.split('\n').filter(line => line.trim() !== '');
-                aboutContent.whyTitle = document.getElementById('why-title').value;
-                aboutContent.whyDesc = document.getElementById('why-desc').value;
-                aboutContent.whyList = document.getElementById('why-list').value.split('\n').filter(line => line.trim() !== '');
-             
-                saveData();
-                updateAboutContent();
-                alert('✅ Treść została zaktualizowana!');
-            });
-         
-            // Password change form
-            document.getElementById('password-change-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-             
-                const oldPassword = document.getElementById('old-password').value;
-                const newPassword = document.getElementById('new-password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
-             
-                if (!verifyPassword(oldPassword)) {
-                    alert('❌ Nieprawidłowe stare hasło!');
-                    return;
-                }
-             
-                if (newPassword !== confirmPassword) {
-                    alert('❌ Nowe hasła nie są identyczne!');
-                    return;
-                }
-             
-                if (newPassword.length < 4) {
-                    alert('❌ Nowe hasło musi mieć co najmniej 4 znaki!');
-                    return;
-                }
-             
-                adminPasswordHash = hashPassword(newPassword);
-                saveData();
-                alert('✅ Hasło zostało zmienione pomyślnie!');
-                this.reset();
-            });
-        });
-        // Check for admin access in URL
-        if (window.location.hash === '#admin') {
-            showPage('admin-login');
-        }
-        // Animation on scroll
-        function animateOnScroll() {
-            const elements = document.querySelectorAll('.fade-in');
-            elements.forEach(element => {
-                const elementTop = element.getBoundingClientRect().top;
-                const elementVisible = 150;
-             
-                if (elementTop < window.innerHeight - elementVisible) {
-                    element.style.opacity = '1';
-                    element.style.transform = 'translateY(0)';
-                }
-            });
-        }
-        window.addEventListener('scroll', animateOnScroll);
-        setTimeout(animateOnScroll, 100);
-    </script>
-</body>
-</html>
+   <html lang="pl">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>CarTax s.c. - Elektroniczny Warsztat Samochodowy | Gdańsk</title>
+       <meta name="description" content="CarTax s.c. - Specjalistyczny warsztat elektroniczny w Gdańsku. Diagnostyka samochodowa, programowanie sterowników, instalacje taksometrów, kasy fiskalne.">
+       <meta name="keywords" content="diagnostyka samochodowa, programowanie sterowników, taksometry, kasy fiskalne, elektronika samochodowa, Gdańsk">
+    
+       <!-- Firebase SDK Compat Versions -->
+       <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+       <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+       <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
+       <style>
+           * {
+               margin: 0;
+               padding: 0;
+               box-sizing: border-box;
+           }
+           body {
+               font-family: 'Arial', sans-serif;
+               line-height: 1.6;
+               color: #333;
+               background-color: #f8f9fa;
+           }
+           .container {
+               max-width: 1200px;
+               margin: 0 auto;
+               padding: 0 20px;
+           }
+           /* Header */
+           header {
+               background: linear-gradient(135deg, #1e3c72, #2a5298);
+               color: white;
+               position: fixed;
+               top: 0;
+               width: 100%;
+               z-index: 1000;
+               box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+           }
+           .header-content {
+               display: flex;
+               justify-content: space-between;
+               align-items: center;
+               padding: 1rem 0;
+           }
+           .logo {
+               font-size: 2rem;
+               font-weight: bold;
+               color: #fff;
+           }
+           nav ul {
+               display: flex;
+               list-style: none;
+           }
+           nav ul li {
+               margin-left: 2rem;
+           }
+           nav ul li a {
+               color: white;
+               text-decoration: none;
+               font-weight: 500;
+               transition: color 0.3s ease;
+               cursor: pointer;
+           }
+           nav ul li a:hover {
+               color: #ffd700;
+           }
+           .mobile-menu {
+               display: none;
+               flex-direction: column;
+               cursor: pointer;
+           }
+           .mobile-menu span {
+               width: 25px;
+               height: 3px;
+               background: white;
+               margin: 3px 0;
+               transition: 0.3s;
+           }
+           /* Hero Section */
+           .hero {
+               height: 100vh;
+               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+               display: flex;
+               align-items: center;
+               justify-content: center;
+               text-align: center;
+               color: white;
+               position: relative;
+               overflow: hidden;
+           }
+           .hero::before {
+               content: '';
+               position: absolute;
+               top: 0;
+               left: 0;
+               right: 0;
+               bottom: 0;
+               background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+               opacity: 0.3;
+           }
+           .hero-background {
+               position: absolute;
+               top: 0;
+               left: 0;
+               width: 100%;
+               height: 100%;
+               background: linear-gradient(45deg, rgba(30,60,114,0.8), rgba(42,82,152,0.8));
+           }
+           .hero-shapes {
+               position: absolute;
+               top: 0;
+               left: 0;
+               width: 100%;
+               height: 100%;
+               overflow: hidden;
+           }
+           .hero-shape {
+               position: absolute;
+               background: rgba(255,255,255,0.1);
+               border-radius: 50%;
+               animation: float 6s ease-in-out infinite;
+           }
+           .hero-shape:nth-child(1) {
+               width: 80px;
+               height: 80px;
+               top: 20%;
+               left: 10%;
+               animation-delay: 0s;
+           }
+           .hero-shape:nth-child(2) {
+               width: 120px;
+               height: 120px;
+               top: 60%;
+               right: 15%;
+               animation-delay: 2s;
+           }
+           .hero-shape:nth-child(3) {
+               width: 60px;
+               height: 60px;
+               bottom: 20%;
+               left: 20%;
+               animation-delay: 4s;
+           }
+           .hero-shape:nth-child(4) {
+               width: 100px;
+               height: 100px;
+               top: 10%;
+               right: 25%;
+               animation-delay: 1s;
+           }
+           @keyframes float {
+               0%, 100% { transform: translateY(0px) rotate(0deg); }
+               50% { transform: translateY(-20px) rotate(180deg); }
+           }
+           .hero-content {
+               position: relative;
+               z-index: 10;
+               max-width: 800px;
+               padding: 0 2rem;
+               animation: fadeInUp 1s ease-out;
+           }
+           .hero-content .logo-large {
+               font-size: clamp(5rem, 10vw, 8rem);
+               font-weight: 900;
+               margin-bottom: 1rem;
+               background: linear-gradient(45deg, #ffd700, #ffed4a);
+               -webkit-background-clip: text;
+               -webkit-text-fill-color: transparent;
+               background-clip: text;
+               text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+               display: flex;
+               justify-content: center;
+               align-items: center;
+               min-height: 5rem;
+           }
+           .hero-content .logo-large img {
+               max-height: clamp(200px, 30vw, 300px);
+               max-width: clamp(400px, 60vw, 600px);
+               object-fit: contain;
+               filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+           }
+           .hero-tagline {
+               font-size: clamp(1rem, 3vw, 1.4rem);
+               margin-bottom: 0.5rem;
+               font-weight: 300;
+               opacity: 0.9;
+           }
+           .hero-description {
+               font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+               margin-bottom: 2.5rem;
+               opacity: 0.8;
+               line-height: 1.6;
+           }
+           .hero-buttons {
+               display: flex;
+               gap: 1rem;
+               justify-content: center;
+               flex-wrap: wrap;
+           }
+           .hero-stats {
+               position: absolute;
+               bottom: 50px;
+               left: 50%;
+               transform: translateX(-50%);
+               display: flex;
+               gap: 3rem;
+               z-index: 10;
+           }
+           .stat-item {
+               text-align: center;
+               color: rgba(255,255,255,0.9);
+           }
+           .stat-number {
+               font-size: clamp(1.5rem, 4vw, 2rem);
+               font-weight: bold;
+               color: #ffd700;
+               display: block;
+           }
+           .stat-label {
+               font-size: clamp(0.7rem, 2vw, 0.9rem);
+               margin-top: 0.5rem;
+               opacity: 0.8;
+           }
+           .btn {
+               display: inline-block;
+               padding: 12px 30px;
+               background: #ffd700;
+               color: #333;
+               text-decoration: none;
+               border-radius: 5px;
+               font-weight: bold;
+               transition: all 0.3s ease;
+               border: none;
+               cursor: pointer;
+           }
+           .btn:hover {
+               background: #ffed4a;
+               transform: translateY(-2px);
+               box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+           }
+           .btn-secondary {
+               background: transparent;
+               color: white;
+               border: 2px solid white;
+           }
+           .btn-secondary:hover {
+               background: white;
+               color: #333;
+           }
+           /* Services Section */
+           .services {
+               padding: 100px 0;
+               background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+               position: relative;
+           }
+           .services::before {
+               content: '';
+               position: absolute;
+               top: 0;
+               left: 0;
+               right: 0;
+               height: 100px;
+               background: linear-gradient(to bottom, rgba(102,126,234,0.1), transparent);
+           }
+           .section-title {
+               text-align: center;
+               font-size: clamp(2rem, 5vw, 2.8rem);
+               margin-bottom: 1rem;
+               color: #333;
+               font-weight: 700;
+           }
+           .section-subtitle {
+               text-align: center;
+               font-size: clamp(1rem, 2.5vw, 1.2rem);
+               color: #666;
+               margin-bottom: 4rem;
+               max-width: 600px;
+               margin-left: auto;
+               margin-right: auto;
+           }
+           .services-grid {
+               display: grid;
+               grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+               gap: 2.5rem;
+               margin-top: 3rem;
+           }
+           .service-card {
+               background: white;
+               padding: 2.5rem;
+               border-radius: 15px;
+               box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+               text-align: center;
+               transition: all 0.3s ease;
+               position: relative;
+               overflow: hidden;
+               border: 1px solid rgba(102,126,234,0.1);
+           }
+           .service-card::before {
+               content: '';
+               position: absolute;
+               top: 0;
+               left: -100%;
+               width: 100%;
+               height: 3px;
+               background: linear-gradient(90deg, #667eea, #764ba2);
+               transition: left 0.3s ease;
+           }
+           .service-card:hover::before {
+               left: 0;
+           }
+           .service-card:hover {
+               transform: translateY(-10px);
+               box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+           }
+           .service-icon {
+               font-size: clamp(2.5rem, 6vw, 3.5rem);
+               margin-bottom: 1.5rem;
+               display: block;
+               filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+           }
+           .service-card h3 {
+               font-size: clamp(1.4rem, 3vw, 1.6rem);
+               margin-bottom: 1.2rem;
+               color: #333;
+               font-weight: 600;
+           }
+           .service-card p {
+               color: #666;
+               line-height: 1.7;
+               margin-bottom: 1.5rem;
+           }
+           .service-price {
+               font-weight: bold;
+               color: #667eea;
+               font-size: clamp(1rem, 2vw, 1.1rem);
+               background: rgba(102,126,234,0.1);
+               padding: 0.5rem 1rem;
+               border-radius: 20px;
+               display: inline-block;
+           }
+           /* About Section */
+           .about {
+               padding: 80px 0;
+               background: #e9ecef;
+           }
+           .about-content {
+               display: grid;
+               grid-template-columns: 1fr 1fr;
+               gap: 3rem;
+               align-items: center;
+           }
+           .about-text h2 {
+               font-size: clamp(2rem, 4vw, 2.5rem);
+               margin-bottom: 1.5rem;
+               color: #333;
+           }
+           .about-text p {
+               margin-bottom: 1.5rem;
+               color: #666;
+               font-size: clamp(1rem, 2vw, 1.1rem);
+               line-height: 1.7;
+           }
+           .about-image {
+               height: 400px;
+               border-radius: 10px;
+               box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+           }
+           .about-image iframe {
+               width: 100%;
+               height: 100%;
+               border: 0;
+           }
+           /* Contact Section */
+           .contact {
+               padding: 80px 0;
+               background: #e9ecef;
+           }
+           .contact-content {
+               display: grid;
+               grid-template-columns: 1fr 1fr;
+               gap: 3rem;
+           }
+           .contact-form {
+               background: #f8f9fa;
+               padding: 2rem;
+               border-radius: 10px;
+           }
+           .form-group {
+               margin-bottom: 1.5rem;
+           }
+           .form-group label {
+               display: block;
+               margin-bottom: 0.5rem;
+               font-weight: bold;
+               color: #333;
+           }
+           .form-group input,
+           .form-group textarea {
+               width: 100%;
+               padding: 12px;
+               border: 1px solid #ddd;
+               border-radius: 5px;
+               font-size: 1rem;
+           }
+           .form-group textarea {
+               height: 120px;
+               resize: vertical;
+           }
+           .contact-info h3 {
+               font-size: clamp(1.3rem, 2.5vw, 1.5rem);
+               margin-bottom: 1rem;
+               color: #333;
+           }
+           .contact-item {
+               display: flex;
+               align-items: center;
+               margin-bottom: 1rem;
+               color: #666;
+           }
+           .contact-item i {
+               font-size: 1.2rem;
+               color: #2a5298;
+               margin-right: 1rem;
+               width: 20px;
+           }
+           .map {
+               height: 300px;
+               border-radius: 10px;
+               margin-top: 2rem;
+           }
+           /* Footer */
+           footer {
+               background: linear-gradient(135deg, #1e3c72, #2a5298);
+               color: white;
+               padding: 3rem 0 1rem;
+           }
+           .footer-content {
+               display: grid;
+               grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+               gap: 2rem;
+               margin-bottom: 2rem;
+           }
+           .footer-section h3 {
+               margin-bottom: 1rem;
+               color: #ffd700;
+           }
+           .footer-section p,
+           .footer-section a {
+               color: #ccc;
+               text-decoration: none;
+               line-height: 1.6;
+           }
+           .footer-section a:hover {
+               color: #ffd700;
+           }
+           .footer-bottom {
+               border-top: 1px solid #444;
+               padding-top: 1rem;
+               text-align: center;
+               color: #ccc;
+           }
+           /* Admin Panel Styles */
+           .admin-login,
+           .admin-dashboard {
+               max-width: 600px;
+               margin: 120px auto;
+               padding: 2.5rem;
+               background: white;
+               border-radius: 15px;
+               box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+           }
+           .admin-dashboard {
+               max-width: 1000px;
+           }
+           .admin-header {
+               display: flex;
+               justify-content: space-between;
+               align-items: center;
+               margin-bottom: 2rem;
+               padding-bottom: 1rem;
+               border-bottom: 2px solid #f0f0f0;
+           }
+           .admin-header h2 {
+               color: #333;
+               margin: 0;
+               font-size: 2rem;
+           }
+           .admin-nav {
+               display: grid;
+               grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+               gap: 1rem;
+               margin-bottom: 2rem;
+           }
+           .admin-nav button {
+               padding: 12px 20px;
+               border: none;
+               background: #667eea;
+               color: white;
+               border-radius: 8px;
+               cursor: pointer;
+               font-weight: 500;
+               transition: all 0.3s ease;
+           }
+           .admin-nav button:hover {
+               background: #5a6fd8;
+               transform: translateY(-2px);
+           }
+           .admin-nav button.active {
+               background: #ffd700;
+               color: #333;
+           }
+           .admin-section {
+               display: none;
+               background: #f8f9fa;
+               padding: 2rem;
+               border-radius: 10px;
+               border: 1px solid #e9ecef;
+           }
+           .admin-section.active {
+               display: block;
+           }
+           .admin-section h3 {
+               color: #333;
+               margin-bottom: 1.5rem;
+               font-size: 1.5rem;
+           }
+           .service-item,
+           .company-info-section {
+               background: white;
+               border: 1px solid #ddd;
+               padding: 1.5rem;
+               margin-bottom: 1.5rem;
+               border-radius: 10px;
+               box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+           }
+           .service-item h4 {
+               margin-bottom: 1rem;
+               color: #333;
+               font-size: 1.2rem;
+           }
+           .service-actions {
+               margin-top: 1rem;
+               display: flex;
+               gap: 0.5rem;
+           }
+           .service-actions button,
+           .action-btn {
+               padding: 8px 16px;
+               border: none;
+               border-radius: 5px;
+               cursor: pointer;
+               font-weight: 500;
+               transition: all 0.3s ease;
+           }
+           .edit-btn {
+               background: #28a745;
+               color: white;
+           }
+           .edit-btn:hover {
+               background: #218838;
+           }
+           .delete-btn {
+               background: #dc3545;
+               color: white;
+           }
+           .delete-btn:hover {
+               background: #c82333;
+           }
+           .add-btn {
+               background: #007bff;
+               color: white;
+               margin-bottom: 1.5rem;
+           }
+           .add-btn:hover {
+               background: #0056b3;
+           }
+           .form-section {
+               background: white;
+               padding: 2rem;
+               border-radius: 10px;
+               border: 1px solid #ddd;
+               margin-bottom: 2rem;
+           }
+           .form-section h4 {
+               margin-bottom: 1rem;
+               color: #333;
+           }
+           .form-grid {
+               display: grid;
+               grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+               gap: 1rem;
+           }
+           .firebase-status {
+               padding: 1rem;
+               border-radius: 5px;
+               margin-bottom: 1rem;
+               font-weight: 500;
+           }
+           .firebase-connected {
+               background: #d4edda;
+               color: #155724;
+               border: 1px solid #c3e6cb;
+           }
+           .firebase-disconnected {
+               background: #f8d7da;
+               color: #721c24;
+               border: 1px solid #f5c6cb;
+           }
+           .firebase-config {
+               background: #f8f9fa;
+               padding: 1.5rem;
+               border-radius: 8px;
+               border: 1px solid #e9ecef;
+               margin-bottom: 1rem;
+           }
+           .logo-upload-section {
+               background: #e3f2fd;
+               padding: 1.5rem;
+               border-radius: 8px;
+               border: 1px solid #90caf9;
+               margin-bottom: 1rem;
+           }
+           .logo-upload-section h5 {
+               color: #1565c0;
+               margin-bottom: 1rem;
+           }
+           .logo-preview {
+               display: flex;
+               align-items: center;
+               gap: 1rem;
+               margin: 1rem 0;
+           }
+           .logo-preview img {
+               max-width: 150px;
+               max-height: 80px;
+               object-fit: contain;
+               border: 2px solid #ddd;
+               border-radius: 5px;
+               background: #f9f9f9;
+           }
+           .logo-current {
+               padding: 0.5rem;
+               background: #f0f0f0;
+               border-radius: 5px;
+               font-style: italic;
+               color: #666;
+           }
+           .logo-actions {
+               display: flex;
+               gap: 0.5rem;
+               flex-wrap: wrap;
+           }
+           .logo-actions button {
+               padding: 8px 16px;
+               border: none;
+               border-radius: 5px;
+               cursor: pointer;
+               font-weight: 500;
+               transition: all 0.3s ease;
+           }
+           .upload-btn {
+               background: #28a745;
+               color: white;
+           }
+           .upload-btn:hover {
+               background: #218838;
+           }
+           .remove-logo-btn {
+               background: #dc3545;
+               color: white;
+           }
+           .firebase-config textarea {
+               width: 100%;
+               height: 120px;
+               border: 1px solid #ddd;
+               border-radius: 5px;
+               padding: 10px;
+               font-family: monospace;
+               font-size: 12px;
+           }
+           /* Animations */
+           @keyframes fadeInUp {
+               from {
+                   opacity: 0;
+                   transform: translateY(30px);
+               }
+               to {
+                   opacity: 1;
+                   transform: translateY(0);
+               }
+           }
+           .fade-in {
+               animation: fadeInUp 0.6s ease-out;
+           }
+           /* Page-specific styles */
+           .page {
+               display: none;
+               padding-top: 80px;
+               min-height: calc(100vh - 80px);
+           }
+           .page.active {
+               display: block;
+           }
+           .page-content {
+               padding: 2rem 0;
+           }
+           .hidden {
+               display: none !important;
+           }
+           /* Responsive Design */
+           @media (max-width: 768px) {
+               .hero {
+                   height: auto;
+                   padding: 120px 0 60px;
+               }
+               .hero-buttons {
+                   flex-direction: column;
+                   align-items: center;
+               }
+               .hero-stats {
+                   position: static;
+                   transform: none;
+                   margin-top: 3rem;
+                   flex-wrap: wrap;
+                   gap: 2rem;
+               }
+               .services-grid {
+                   grid-template-columns: 1fr;
+                   gap: 2rem;
+               }
+               .service-card {
+                   padding: 2rem;
+               }
+               nav ul {
+                   display: none;
+                   flex-direction: column;
+                   position: absolute;
+                   top: 100%;
+                   left: 0;
+                   width: 100%;
+                   background: #1e3c72;
+                   padding: 1rem 0;
+               }
+               nav ul.active {
+                   display: flex;
+               }
+               nav ul li {
+                   margin: 0.5rem 0;
+                   text-align: center;
+               }
+               .mobile-menu {
+                   display: flex;
+               }
+               .about-content,
+               .contact-content {
+                   grid-template-columns: 1fr;
+               }
+               .admin-nav {
+                   grid-template-columns: 1fr;
+               }
+           }
+           @media (max-width: 480px) {
+               .admin-dashboard,
+               .admin-login {
+                   margin: 100px 20px;
+                   padding: 1.5rem;
+               }
+           }
+       </style>
+   </head>
+   <body>
+       <!-- Header -->
+       <header>
+           <div class="container">
+               <div class="header-content">
+                   <div class="logo" onclick="handleLogoClick()">CarTax</div>
+                   <nav>
+                       <ul id="nav-menu">
+                           <li><a onclick="showPage('home')">Strona Główna</a></li>
+                           <li><a onclick="showPage('about')">O Nas</a></li>
+                           <li><a onclick="showPage('services')">Usługi</a></li>
+                           <li><a onclick="showPage('contact')">Kontakt</a></li>
+                       </ul>
+                       <div class="mobile-menu" onclick="toggleMobileMenu()">
+                           <span></span>
+                           <span></span>
+                           <span></span>
+                       </div>
+                   </nav>
+               </div>
+           </div>
+       </header>
+       <!-- Home Page -->
+       <div id="home" class="page active">
+           <section class="hero">
+               <div class="hero-background"></div>
+               <div class="hero-shapes">
+                   <div class="hero-shape"></div>
+                   <div class="hero-shape"></div>
+                   <div class="hero-shape"></div>
+                   <div class="hero-shape"></div>
+               </div>
+               <div class="hero-content">
+                   <div class="logo-large" id="hero-logo">
+                       <span id="logo-text">CarTax</span>
+                       <img id="logo-image" style="display: none;" alt="CarTax Logo">
+                   </div>
+                   <div class="hero-tagline">Specjalistyczny warsztat elektroniczny w Gdańsku</div>
+                   <div class="hero-description">
+                       Oferujemy kompleksowe usługi w zakresie elektroniki pojazdowej, diagnostyki komputerowej,
+                       programowania sterowników oraz instalacji taksometrów i kas fiskalnych.
+                   </div>
+                   <div class="hero-buttons">
+                       <a class="btn" onclick="showPage('services')">Nasze Usługi</a>
+                       <a class="btn btn-secondary" onclick="showPage('contact')">Skontaktuj się</a>
+                   </div>
+               </div>
+               <div class="hero-stats">
+                   <div class="stat-item">
+                       <span class="stat-number" id="stat-experience">11+</span>
+                       <div class="stat-label">Lat doświadczenia</div>
+                   </div>
+                   <div class="stat-item">
+                       <span class="stat-number" id="stat-clients">500+</span>
+                       <div class="stat-label">Zadowolonych klientów</div>
+                   </div>
+                   <div class="stat-item">
+                       <span class="stat-number" id="stat-support">24/7</span>
+                       <div class="stat-label">Wsparcie techniczne</div>
+                   </div>
+               </div>
+           </section>
+           <section class="services">
+               <div class="container">
+                   <h2 class="section-title">Nasze Główne Usługi</h2>
+                   <p class="section-subtitle">Świadczymy profesjonalne usługi w zakresie elektroniki samochodowej z wykorzystaniem najnowszych technologii</p>
+                   <div class="services-grid" id="home-services">
+                       <!-- Services will be loaded here -->
+                   </div>
+               </div>
+           </section>
+           <section class="about">
+               <div class="container">
+                   <div class="about-content">
+                       <div class="about-text">
+                           <h2>CarTax - Twój Partner w Elektronice Samochodowej</h2>
+                           <p id="company-description-home">CarTax to specjalistyczny warsztat elektroniczny w Gdańsku oferujący kompleksowe usługi w zakresie elektroniki pojazdowej, w tym diagnostykę, programowanie i naprawę sterowników, instalacje taksometrów oraz obsługę kas fiskalnych dla taksówek i nie tylko.</p>
+                           <p>Nasza firma została założona w 2014 roku i od tego czasu świadczymy ekspertowskie usługi w dziedzinie elektroniki taksówkowej, urządzeń fiskalnych oraz diagnostyki pojazdów.</p>
+                           <a class="btn" onclick="showPage('about')">Dowiedz się więcej</a>
+                       </div>
+                       <div class="about-image">
+                           <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2324.905!2d18.6152315!3d54.340261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fd74a4f0b5a8b3%3A0xdef123456789!2sB%C5%82o%C5%84ska+25%2F1%2C+80-732+Gda%C5%84sk!5e0!3m2!1sen!2spl!4v1722870000000!5m2!1sen!2spl" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                       </div>
+                   </div>
+               </div>
+           </section>
+       </div>
+       <!-- About Page -->
+       <div id="about" class="page">
+           <div class="container">
+               <div class="page-content">
+                   <h1>O Nas</h1>
+                   <div class="about-content">
+                       <div class="about-text" id="about-text">
+                           <!-- Dynamic content will be loaded here -->
+                       </div>
+                       <div class="about-image">
+                           <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2324.905!2d18.6152315!3d54.340261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fd74a4f0b5a8b3%3A0xdef123456789!2sB%C5%82o%C5%84ska+25%2F1%2C+80-732+Gda%C5%84sk!5e0!3m2!1sen!2spl!4v1722870000000!5m2!1sen!2spl" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+       <!-- Services Page -->
+       <div id="services" class="page">
+           <div class="container">
+               <div class="page-content">
+                   <h1>Nasze Usługi</h1>
+                   <div id="services-list" class="services-grid">
+                       <!-- Services will be loaded here -->
+                   </div>
+               </div>
+           </div>
+       </div>
+       <!-- Contact Page -->
+       <div id="contact" class="page">
+           <div class="container">
+               <div class="page-content">
+                   <h1>Kontakt</h1>
+                   <div class="contact-content">
+                       <div class="contact-form">
+                           <h3>Skontaktuj się z nami</h3>
+                           <form id="contact-form">
+                               <div class="form-group">
+                                   <label for="name">Imię i nazwisko:</label>
+                                   <input type="text" id="name" name="name" required>
+                               </div>
+                               <div class="form-group">
+                                   <label for="email">Email:</label>
+                                   <input type="email" id="email" name="email" required>
+                               </div>
+                               <div class="form-group">
+                                   <label for="phone">Telefon:</label>
+                                   <input type="tel" id="phone" name="phone">
+                               </div>
+                               <div class="form-group">
+                                   <label for="message">Wiadomość:</label>
+                                   <textarea id="message" name="message" required></textarea>
+                               </div>
+                               <button type="submit" class="btn">Wyślij wiadomość</button>
+                           </form>
+                       </div>
+                       <div class="contact-info" id="contact-info">
+                           <h3>Dane kontaktowe</h3>
+                           <div class="contact-item">
+                               <i>📍</i>
+                               <span>Ul. Błońska 25/1<br>80-732 Gdańsk, Poland</span>
+                           </div>
+                           <div class="contact-item">
+                               <i>📞</i>
+                               <span>505 898 692</span>
+                           </div>
+                           <div class="contact-item">
+                               <i>✉️</i>
+                               <span>info@cartax.pl</span>
+                           </div>
+                           <div class="contact-item">
+                               <i>🏢</i>
+                               <span>NIP: 583-316-75-25</span>
+                           </div>
+                       
+                           <div class="map">
+   <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2324.905!2d18.6152315!3d54.340261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fd74a4f0b5a8b3%3A0xdef123456789!2sB%C5%82o%C5%84ska+25%2F1%2C+80-732+Gda%C5%84sk!5e0!3m2!1sen!2spl!4v1722870000000!5m2!1sen!2spl" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+       <!-- Admin Login -->
+       <div id="admin-login" class="page">
+           <div class="admin-login">
+               <h2>Panel Administracyjny</h2>
+               <form id="admin-login-form">
+                   <div class="form-group">
+                       <label for="admin-password">Hasło:</label>
+                       <input type="password" id="admin-password" required>
+                   </div>
+                   <button type="submit" class="btn">Zaloguj</button>
+               </form>
+           </div>
+       </div>
+       <!-- Admin Dashboard -->
+       <div id="admin-dashboard" class="page">
+           <div class="admin-dashboard">
+               <div class="admin-header">
+                   <h2>Panel Administracyjny CarTax</h2>
+                   <button onclick="logout()" class="btn btn-secondary">Wyloguj</button>
+               </div>
+           
+               <div id="firebase-status" class="firebase-status firebase-disconnected">
+                   🔴 Firebase rozłączony - dane zapisywane lokalnie
+               </div>
+           
+               <div class="admin-nav">
+                   <button class="active" onclick="showAdminSection('services-admin')">Zarządzaj Usługami</button>
+                   <button onclick="showAdminSection('company-admin')">Dane Firmy</button>
+                   <button onclick="showAdminSection('content-admin')">Edytuj Treść</button>
+                   <button onclick="showAdminSection('firebase-admin')">Konfiguracja Firebase</button>
+                   <button onclick="showAdminSection('password-admin')">Zmień Hasło</button>
+               </div>
+               <!-- Services Management -->
+               <div id="services-admin" class="admin-section active">
+                   <h3>Zarządzanie Usługami</h3>
+                   <button onclick="showAddServiceForm()" class="action-btn add-btn">➕ Dodaj Nową Usługę</button>
+               
+                   <div id="add-service-form" class="hidden form-section">
+                       <h4>Dodaj/Edytuj Usługę</h4>
+                       <form id="service-form">
+                           <input type="hidden" id="service-id">
+                           <div class="form-grid">
+                               <div class="form-group">
+                                   <label for="service-name">Nazwa usługi:</label>
+                                   <input type="text" id="service-name" required>
+                               </div>
+                               <div class="form-group">
+                                   <label for="service-icon">Ikona (emoji):</label>
+                                   <input type="text" id="service-icon" placeholder="🔧">
+                               </div>
+                           </div>
+                           <div class="form-group">
+                               <label for="service-description">Opis:</label>
+                               <textarea id="service-description" required rows="4"></textarea>
+                           </div>
+                           <div class="form-group">
+                               <label for="service-price">Cena (opcjonalnie):</label>
+                               <input type="text" id="service-price" placeholder="np. od 150 zł">
+                           </div>
+                           <div style="margin-top: 1rem;">
+                               <button type="submit" class="btn">💾 Zapisz</button>
+                               <button type="button" onclick="cancelServiceForm()" class="btn btn-secondary">❌ Anuluj</button>
+                           </div>
+                       </form>
+                   </div>
+                   <div id="services-admin-list">
+                       <!-- Services will be loaded here -->
+                   </div>
+               </div>
+               <!-- Company Info Management -->
+               <div id="company-admin" class="admin-section">
+                   <h3>Zarządzanie Danymi Firmy</h3>
+                   <form id="company-form" class="form-section">
+                       <h4>Logo Firmy</h4>
+                       <div class="logo-upload-section">
+                           <h5>🎨 Zarządzanie Logo</h5>
+                           <div class="logo-preview">
+                               <div>
+                                   <strong>Aktualny wygląd:</strong>
+                                   <div id="current-logo-preview" class="logo-current">
+                                       Tekst: "CarTax"
+                                   </div>
+                               </div>
+                           </div>
+                       
+                           <div class="form-group">
+                               <label for="logo-file">Wybierz plik logo:</label>
+                               <input type="file" id="logo-file" accept="image/png, image/jpeg, image/svg+xml">
+                               <small style="color: #666;">Zalecane formaty: PNG, JPG, SVG. Wymiary: 300x150px</small>
+                           </div>
+                       
+                           <div class="logo-actions">
+                               <button type="button" onclick="previewLogo()" class="upload-btn">👁️ Podgląd</button>
+                               <button type="button" onclick="saveLogo()" class="btn">💾 Zapisz Logo</button>
+                               <button type="button" onclick="removeLogo()" class="remove-logo-btn">🗑️ Usuń Logo</button>
+                           </div>
+                       </div>
+                       <h4>Podstawowe Informacje</h4>
+                       <div class="form-grid">
+                           <div class="form-group">
+                               <label for="company-name">Nazwa firmy:</label>
+                               <input type="text" id="company-name" required>
+                           </div>
+                           <div class="form-group">
+                               <label for="company-nip">NIP:</label>
+                               <input type="text" id="company-nip" required>
+                           </div>
+                           <div class="form-group">
+                               <label for="company-phone">Telefon:</label>
+                               <input type="tel" id="company-phone" required>
+                           </div>
+                           <div class="form-group">
+                               <label for="company-email">Email:</label>
+                               <input type="email" id="company-email" required>
+                           </div>
+                       </div>
+                   
+                       <h4>Adres</h4>
+                       <div class="form-grid">
+                           <div class="form-group">
+                               <label for="company-address">Ulica i numer:</label>
+                               <input type="text" id="company-address" required>
+                           </div>
+                           <div class="form-group">
+                               <label for="company-city">Miasto z kodem:</label>
+                               <input type="text" id="company-city" required>
+                           </div>
+                           <div class="form-group">
+                               <label for="company-country">Kraj:</label>
+                               <input type="text" id="company-country" required>
+                           </div>
+                       </div>
+                       <h4>Dodatkowe Informacje</h4>
+                       <div class="form-group">
+                           <label for="company-description">Opis firmy:</label>
+                           <textarea id="company-description" rows="4"></textarea>
+                       </div>
+                       <div class="form-grid">
+                           <div class="form-group">
+                               <label for="company-hours">Godziny pracy:</label>
+                               <input type="text" id="company-hours" placeholder="Pon-Pt: 8:00-17:00">
+                           </div>
+                           <div class="form-group">
+                               <label for="company-founded">Rok założenia:</label>
+                               <input type="text" id="company-founded" placeholder="2014">
+                           </div>
+                       </div>
+                   
+                       <h4>Statystyki (wyświetlane na stronie głównej)</h4>
+                       <div class="form-grid">
+                           <div class="form-group">
+                               <label for="company-experience">Lata doświadczenia:</label>
+                               <input type="text" id="company-experience" placeholder="11+">
+                           </div>
+                           <div class="form-group">
+                               <label for="company-clients">Liczba klientów:</label>
+                               <input type="text" id="company-clients" placeholder="500+">
+                           </div>
+                           <div class="form-group">
+                               <label for="company-support">Wsparcie:</label>
+                               <input type="text" id="company-support" placeholder="24/7">
+                           </div>
+                       </div>
+                       <h4>Wygląd Strony</h4>
+                       <div class="form-grid">
+                           <div class="form-group">
+                               <label for="body-bg-color">Kolor tła strony:</label>
+                               <input type="color" id="body-bg-color">
+                           </div>
+                       </div>
+                       <button type="submit" class="btn">💾 Zapisz Dane Firmy</button>
+                   </form>
+               </div>
+               <!-- Content Editing -->
+               <div id="content-admin" class="admin-section">
+                   <h3>Edytuj Treść Stron</h3>
+                   <form id="content-form" class="form-section">
+                       <h4>Zakładka "O Nas"</h4>
+                       <div class="form-group">
+                           <label for="history-text">Historia CarTax:</label>
+                           <textarea id="history-text" rows="4"></textarea>
+                       </div>
+                       <h4>Nasze Doświadczenie</h4>
+                       <div class="form-group">
+                           <label for="experience-title">Tytuł:</label>
+                           <input type="text" id="experience-title">
+                       </div>
+                       <div class="form-group">
+                           <label for="experience-desc">Opis:</label>
+                           <textarea id="experience-desc" rows="2"></textarea>
+                       </div>
+                       <div class="form-group">
+                           <label for="experience-list">Lista punktów (każdy w nowej linii):</label>
+                           <textarea id="experience-list" rows="6"></textarea>
+                       </div>
+                       <h4>Dlaczego CarTax?</h4>
+                       <div class="form-group">
+                           <label for="why-title">Tytuł:</label>
+                           <input type="text" id="why-title">
+                       </div>
+                       <div class="form-group">
+                           <label for="why-desc">Opis:</label>
+                           <textarea id="why-desc" rows="2"></textarea>
+                       </div>
+                       <div class="form-group">
+                           <label for="why-list">Lista punktów (każdy w nowej linii):</label>
+                           <textarea id="why-list" rows="6"></textarea>
+                       </div>
+                       <button type="submit" class="btn">💾 Zapisz Treść</button>
+                   </form>
+               </div>
+               <!-- Firebase Configuration -->
+               <div id="firebase-admin" class="admin-section">
+                   <h3>Konfiguracja Firebase</h3>
+                   <div class="firebase-config">
+                       <h4>Status połączenia:</h4>
+                       <div id="firebase-status-detail" class="firebase-status firebase-disconnected">
+                           🔴 Firebase rozłączony - dane zapisywane lokalnie
+                       </div>
+                   
+                       <h4>Konfiguracja Firebase (opcjonalna):</h4>
+                       <p>Firebase automatycznie połączy się przy następnym uruchomieniu. Wklej konfigurację tylko raz:</p>
+                       <textarea id="firebase-config-input" placeholder='{
+     "apiKey": "your-api-key",
+     "authDomain": "your-project.firebaseapp.com",
+     "databaseURL": "https://your-project.firebaseio.com",
+     "projectId": "your-project-id",
+     "storageBucket": "your-project.appspot.com",
+     "messagingSenderId": "123456789",
+     "appId": "your-app-id"
+   }'></textarea>
+                       <button onclick="connectFirebase()" class="btn">🔗 Połącz z Firebase</button>
+                       <button onclick="disconnectFirebase()" class="btn btn-secondary">❌ Rozłącz Firebase</button>
+                   </div>
+               
+                   <div style="margin-top: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 5px;">
+                       <h4>📋 Instrukcja konfiguracji Firebase:</h4>
+                       <ol style="margin-left: 1.5rem;">
+                           <li>Przejdź do <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></li>
+                           <li>Kliknij "Dodaj projekt" lub wybierz istniejący</li>
+                           <li>W lewym menu wybierz "Firestore Database"</li>
+                           <li>Kliknij "Utwórz bazę danych"</li>
+                           <li>Wybierz tryb testowy (na początek)</li>
+                           <li>Przejdź do "Ustawienia projektu" (ikona koła zębatego)</li>
+                           <li>Scrolluj w dół do "Twoje aplikacje"</li>
+                           <li>Kliknij ikonę "</>" (Web app)</li>
+                           <li>Nadaj nazwę aplikacji i kliknij "Zarejestruj"</li>
+                           <li>Skopiuj konfigurację (obiekt config) i wklej powyżej</li>
+                       </ol>
+                   
+                       <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">
+                           <h5>🔐 Bezpieczeństwo:</h5>
+                           <p><strong>Hasło administratora jest teraz szyfrowane!</strong></p>
+                           <ul style="margin-left: 1rem;">
+                               <li>✅ Hasło zapisywane w postaci zaszyfrowanej</li>
+                               <li>✅ Niemożliwe odczytanie hasła z bazy Firebase</li>
+                               <li>✅ Automatyczna migracja starych haseł</li>
+                               <li>🔒 Pamiętaj: Ustaw silne hasło!</li>
+                           </ul>
+                       </div>
+                   </div>
+               </div>
+               <!-- Password Change -->
+               <div id="password-admin" class="admin-section">
+                   <h3>Zmiana Hasła Administratora</h3>
+                   <form id="password-change-form" class="form-section">
+                       <div class="form-group">
+                           <label for="old-password">Stare hasło:</label>
+                           <input type="password" id="old-password" required>
+                       </div>
+                       <div class="form-group">
+                           <label for="new-password">Nowe hasło:</label>
+                           <input type="password" id="new-password" required>
+                       </div>
+                       <div class="form-group">
+                           <label for="confirm-password">Potwierdź nowe hasło:</label>
+                           <input type="password" id="confirm-password" required>
+                       </div>
+                       <button type="submit" class="btn">🔐 Zmień hasło</button>
+                   </form>
+               </div>
+           </div>
+       </div>
+       <!-- Footer -->
+       <footer>
+           <div class="container">
+               <div class="footer-content" id="footer-content">
+                   <div class="footer-section">
+                       <h3>CarTax s.c.</h3>
+                       <p>Specjalistyczny warsztat elektroniczny w Gdańsku oferujący kompleksowe usługi w zakresie elektroniki pojazdowej, diagnostyki, programowania sterowników i instalacji taksometrów.</p>
+                   </div>
+                   <div class="footer-section">
+                       <h3>Kontakt</h3>
+                       <p>Ul. Błońska 25/1<br>80-732 Gdańsk, Poland</p>
+                       <p>Tel: 505 898 692</p>
+                       <p>Email: info@cartax.pl</p>
+                   </div>
+                   <div class="footer-section">
+                       <h3>Informacje</h3>
+                       <p>NIP: 583-316-75-25</p>
+                       <p>Godziny pracy:<br>Pon-Pt: 8:00-17:00<br>Sob: 9:00-14:00</p>
+                   </div>
+               </div>
+               <div class="footer-bottom">
+                   <p>&copy; 2025 CarTax s.c. Wszystkie prawa zastrzeżone. | <a href="#" onclick="showPage('admin-login')" style="color: #666; text-decoration: none;">⚙️</a></p>
+               </div>
+           </div>
+       </footer>
+       <script>
+           // Data Storage
+           let services = [
+               {
+                   id: 1,
+                   name: "Diagnostyka Samochodowa",
+                   description: "Profesjonalna diagnostyka wszystkich systemów elektronicznych pojazdu przy użyciu najnowszych urządzeń diagnostycznych. Sprawdzamy silnik, skrzynię biegów, ABS, airbagi i inne systemy.",
+                   price: "od 80 zł",
+                   icon: "🔧"
+               },
+               {
+                   id: 2,
+                   name: "Programowanie Sterowników",
+                   description: "Kompleksowe programowanie i kodowanie sterowników samochodowych, aktualizacje oprogramowania, adaptacje po wymianie części.",
+                   price: "od 150 zł",
+                   icon: "💻"
+               },
+               {
+                   id: 3,
+                   name: "Naprawy Sterowników",
+                   description: "Profesjonalne naprawy elektronicznych sterowników samochodowych, regeneracja uszkodzonych modułów, wymiana komponentów.",
+                   price: "wycena indywidualna",
+                   icon: "🔧"
+               },
+               {
+                   id: 4,
+                   name: "Instalacje Taksometrów",
+                   description: "Montaż i serwis taksometrów, kompletne instalacje taksówkowe zgodne z wymogami prawa, legalizacja urządzeń.",
+                   price: "od 500 zł",
+                   icon: "🚕"
+               },
+               {
+                   id: 5,
+                   name: "Kasy Fiskalne i Drukarki",
+                   description: "Sprzedaż, instalacja i serwis kas fiskalnych, drukarek fiskalnych, kas systemowych oraz terminali płatniczych.",
+                   price: "od 300 zł",
+                   icon: "🧾"
+               },
+               {
+                   id: 6,
+                   name: "Elektronika Pojazdowa",
+                   description: "Kompleksowe naprawy elektroniki samochodowej, instalacje systemów audio, alarmów, central zamkowych i innych urządzeń elektronicznych.",
+                   price: "wycena indywidualna",
+                   icon: "⚡"
+               }
+           ];
+           let companyInfo = {
+               name: "CarTax s.c.",
+               nip: "583-316-75-25",
+               address: "Ul. Błońska 25/1",
+               city: "80-732 Gdańsk",
+               country: "Poland",
+               phone: "505 898 692",
+               email: "info@cartax.pl",
+               description: "Specjalistyczny warsztat elektroniczny w Gdańsku oferujący kompleksowe usługi w zakresie elektroniki pojazdowej, diagnostyki, programowania sterowników i instalacji taksometrów.",
+               workingHours: "Pon-Pt: 8:00-17:00, Sob: 9:00-14:00",
+               founded: "2014",
+               experience: "11+",
+               clients: "500+",
+               support: "24/7",
+               logoUrl: "", // New field for logo URL
+               bodyBgColor: "#f8f9fa"
+           };
+           let aboutContent = {
+               historyText: "CarTax s.c. został założony w 2014 roku jako specjalistyczny warsztat elektroniczny, koncentrujący się na obsłudze branży taksówkarskiej oraz szeroko rozumianej elektronice samochodowej.",
+               experienceTitle: "Nasze Doświadczenie",
+               experienceDesc: "Przez lata naszej działalności zdobyliśmy szerokie doświadczenie w zakresie:",
+               experienceList: [
+                   "Diagnostyki komputerowej wszystkich marek pojazdów",
+                   "Programowania i kodowania sterowników",
+                   "Instalacji i serwisu taksometrów",
+                   "Kompleksowych instalacji taksówkowych",
+                   "Obsługi kas fiskalnych i terminali płatniczych"
+               ],
+               whyTitle: "Dlaczego CarTax?",
+               whyDesc: "Wybierając nasz warsztat, zyskujesz:",
+               whyList: [
+                   "Profesjonalną obsługę i doradztwo",
+                   "Nowoczesny sprzęt diagnostyczny",
+                   "Konkurencyjne ceny",
+                   "Szybki czas realizacji",
+                   "Gwarancję na wykonane usługi"
+               ]
+           };
+           let adminPasswordHash = hashPassword("haslo");
+           let isLoggedIn = false;
+           let firebaseApp = null;
+           let db = null;
+           let storage = null;
+           let firebaseConfig = null;
+           let firebaseConnected = false;
+           // Enhanced Firebase Manager with auto-reconnect
+           class FirebaseManager {
+               constructor() {
+                   this.connected = false;
+                   this.config = null;
+               }
+               async initializeFirebase(config) {
+                   try {
+                       this.config = config;
+                       firebaseConfig = config;
+                       firebaseApp = firebase.initializeApp(config);
+                       db = firebaseApp.firestore();
+                       storage = firebaseApp.storage();
+                       this.connected = true;
+                       firebaseConnected = true;
+                   
+                       // Save config for auto-reconnect
+                       localStorage.setItem('cartax_firebase_config', JSON.stringify(config));
+                   
+                       this.updateFirebaseStatus();
+                       console.log('Firebase connected successfully');
+                       return true;
+                   } catch (error) {
+                       console.error('Firebase initialization failed:', error);
+                       this.connected = false;
+                       return false;
+                   }
+               }
+               async autoReconnect() {
+                   try {
+                       const savedConfig = localStorage.getItem('cartax_firebase_config');
+                       if (savedConfig) {
+                           const config = JSON.parse(savedConfig);
+                           await this.initializeFirebase(config);
+                           console.log('Firebase auto-reconnected');
+                           return true;
+                       }
+                   } catch (error) {
+                       console.log('Auto-reconnect failed, using local storage');
+                   }
+                   return false;
+               }
+               disconnect() {
+                   this.connected = false;
+                   this.config = null;
+                   firebaseConnected = false;
+                   firebaseConfig = null;
+                   firebaseApp = null;
+                   db = null;
+                   storage = null;
+                   localStorage.removeItem('cartax_firebase_config');
+                   this.updateFirebaseStatus();
+               }
+               updateFirebaseStatus() {
+                   const statusEl = document.getElementById('firebase-status');
+                   const statusDetailEl = document.getElementById('firebase-status-detail');
+                   const statusText = this.connected ?
+                       '🟢 Firebase połączony - dane synchronizowane' :
+                       '🔴 Firebase rozłączony - dane zapisywane lokalnie';
+                   const statusClass = this.connected ? 'firebase-connected' : 'firebase-disconnected';
+               
+                   if (statusEl) {
+                       statusEl.className = `firebase-status ${statusClass}`;
+                       statusEl.textContent = statusText;
+                   }
+                   if (statusDetailEl) {
+                       statusDetailEl.className = `firebase-status ${statusClass}`;
+                       statusDetailEl.textContent = statusText;
+                   }
+                   // Update Firebase config textarea if config exists
+                   const configInput = document.getElementById('firebase-config-input');
+                   if (configInput && this.config) {
+                       configInput.value = JSON.stringify(this.config, null, 2);
+                   }
+               }
+               async saveData(data) {
+                   if (this.connected && db) {
+                       try {
+                           await db.collection('cartax').doc('data').set(data);
+                           console.log('Data saved to Firestore');
+                       
+                           // Also save locally as backup
+                           localStorage.setItem('cartax_data', JSON.stringify(data));
+                           return true;
+                       } catch (error) {
+                           console.error('Firestore save failed, using localStorage:', error);
+                           localStorage.setItem('cartax_data', JSON.stringify(data));
+                           return true;
+                       }
+                   } else {
+                       // Fallback to localStorage
+                       localStorage.setItem('cartax_data', JSON.stringify(data));
+                       return true;
+                   }
+               }
+               async loadData() {
+                   if (this.connected && db) {
+                       try {
+                           const doc = await db.collection('cartax').doc('data').get();
+                           if (doc.exists) {
+                               console.log('Data loaded from Firestore');
+                               return doc.data();
+                           } else {
+                               console.log('No data in Firestore, using localStorage');
+                               const saved = localStorage.getItem('cartax_data');
+                               return saved ? JSON.parse(saved) : null;
+                           }
+                       } catch (error) {
+                           console.error('Firestore load failed, using localStorage:', error);
+                           const saved = localStorage.getItem('cartax_data');
+                           return saved ? JSON.parse(saved) : null;
+                       }
+                   } else {
+                       // Fallback to localStorage
+                       const saved = localStorage.getItem('cartax_data');
+                       return saved ? JSON.parse(saved) : null;
+                   }
+               }
+           }
+           const firebaseManager = new FirebaseManager();
+           // Logo click counter for admin access
+           let logoClickCount = 0;
+           let logoClickTimer = null;
+           function handleLogoClick() {
+               logoClickCount++;
+           
+               // Reset counter after 3 seconds if not reached 5 clicks
+               if (logoClickTimer) clearTimeout(logoClickTimer);
+               logoClickTimer = setTimeout(() => {
+                   logoClickCount = 0;
+               }, 3000);
+           
+               // If clicked 5 times, go to admin
+               if (logoClickCount >= 5) {
+                   logoClickCount = 0;
+                   showPage('admin-login');
+               }
+           }
+           // Navigation Functions
+           function showPage(pageId) {
+               const pages = document.querySelectorAll('.page');
+               pages.forEach(page => page.classList.remove('active'));
+           
+               document.getElementById(pageId).classList.add('active');
+           
+               if (pageId === 'services') {
+                   loadServices();
+               }
+               if (pageId === 'about') {
+                   updateAboutContent();
+               }
+           
+               document.getElementById('nav-menu').classList.remove('active');
+           }
+           function toggleMobileMenu() {
+               const navMenu = document.getElementById('nav-menu');
+               navMenu.classList.toggle('active');
+           }
+           // Services Functions
+           function loadServices() {
+               const servicesList = document.getElementById('services-list');
+               const homeServices = document.getElementById('home-services');
+           
+               // Clear both containers
+               if (servicesList) servicesList.innerHTML = '';
+               if (homeServices) homeServices.innerHTML = '';
+           
+               services.forEach((service, index) => {
+                   const serviceCard = document.createElement('div');
+                   serviceCard.className = 'service-card fade-in';
+                   serviceCard.style.animationDelay = `${index * 0.1}s`;
+                   serviceCard.innerHTML = `
+                       <div class="service-icon">${service.icon}</div>
+                       <h3>${service.name}</h3>
+                       <p>${service.description}</p>
+                       ${service.price ? `<div class="service-price">${service.price}</div>` : ''}
+                   `;
+               
+                   if (servicesList) servicesList.appendChild(serviceCard.cloneNode(true));
+                   if (homeServices) homeServices.appendChild(serviceCard);
+               });
+           }
+           function loadAdminServices() {
+               const adminList = document.getElementById('services-admin-list');
+               adminList.innerHTML = '';
+           
+               services.forEach(service => {
+                   const serviceItem = document.createElement('div');
+                   serviceItem.className = 'service-item';
+                   serviceItem.innerHTML = `
+                       <h4>${service.icon} ${service.name}</h4>
+                       <p>${service.description}</p>
+                       ${service.price ? `<p><strong>Cena:</strong> ${service.price}</p>` : ''}
+                       <div class="service-actions">
+                           <button class="edit-btn" onclick="editService(${service.id})">✏️ Edytuj</button>
+                           <button class="delete-btn" onclick="deleteService(${service.id})">🗑️ Usuń</button>
+                       </div>
+                   `;
+                   adminList.appendChild(serviceItem);
+               });
+           }
+           function showAddServiceForm() {
+               document.getElementById('add-service-form').classList.remove('hidden');
+               document.getElementById('service-form').reset();
+               document.getElementById('service-id').value = '';
+           }
+           function cancelServiceForm() {
+               document.getElementById('add-service-form').classList.add('hidden');
+               document.getElementById('service-form').reset();
+           }
+           function editService(id) {
+               const service = services.find(s => s.id === id);
+               if (service) {
+                   document.getElementById('service-id').value = service.id;
+                   document.getElementById('service-name').value = service.name;
+                   document.getElementById('service-description').value = service.description;
+                   document.getElementById('service-price').value = service.price || '';
+                   document.getElementById('service-icon').value = service.icon;
+                   document.getElementById('add-service-form').classList.remove('hidden');
+               }
+           }
+           function deleteService(id) {
+               if (confirm('Czy na pewno chcesz usunąć tę usługę?')) {
+                   services = services.filter(s => s.id !== id);
+                   loadAdminServices();
+                   loadServices();
+                   saveData();
+               }
+           }
+           // Admin Functions
+           function showAdminSection(sectionId) {
+               const sections = document.querySelectorAll('.admin-section');
+               sections.forEach(section => section.classList.remove('active'));
+           
+               document.getElementById(sectionId).classList.add('active');
+           
+               const buttons = document.querySelectorAll('.admin-nav button');
+               buttons.forEach(btn => btn.classList.remove('active'));
+               event.target.classList.add('active');
+           
+               if (sectionId === 'services-admin') {
+                   loadAdminServices();
+               } else if (sectionId === 'company-admin') {
+                   loadCompanyForm();
+               } else if (sectionId === 'content-admin') {
+                   loadContentForm();
+               } else if (sectionId === 'firebase-admin') {
+                   firebaseManager.updateFirebaseStatus();
+               }
+           }
+           function loadCompanyForm() {
+               document.getElementById('company-name').value = companyInfo.name;
+               document.getElementById('company-nip').value = companyInfo.nip;
+               document.getElementById('company-phone').value = companyInfo.phone;
+               document.getElementById('company-email').value = companyInfo.email;
+               document.getElementById('company-address').value = companyInfo.address;
+               document.getElementById('company-city').value = companyInfo.city;
+               document.getElementById('company-country').value = companyInfo.country;
+               document.getElementById('company-description').value = companyInfo.description;
+               document.getElementById('company-hours').value = companyInfo.workingHours;
+               document.getElementById('company-founded').value = companyInfo.founded;
+               document.getElementById('company-experience').value = companyInfo.experience;
+               document.getElementById('company-clients').value = companyInfo.clients;
+               document.getElementById('company-support').value = companyInfo.support;
+               document.getElementById('body-bg-color').value = companyInfo.bodyBgColor;
+               document.getElementById('logo-file').value = '';
+               updateLogoPreview();
+           }
+           function loadContentForm() {
+               document.getElementById('history-text').value = aboutContent.historyText;
+               document.getElementById('experience-title').value = aboutContent.experienceTitle;
+               document.getElementById('experience-desc').value = aboutContent.experienceDesc;
+               document.getElementById('experience-list').value = aboutContent.experienceList.join('\n');
+               document.getElementById('why-title').value = aboutContent.whyTitle;
+               document.getElementById('why-desc').value = aboutContent.whyDesc;
+               document.getElementById('why-list').value = aboutContent.whyList.join('\n');
+           }
+           function previewLogo() {
+               const fileInput = document.getElementById('logo-file');
+               const previewDiv = document.getElementById('current-logo-preview');
+           
+               if (fileInput.files && fileInput.files[0]) {
+                   const file = fileInput.files[0];
+                   if (file.type.startsWith('image/')) {
+                       const localUrl = URL.createObjectURL(file);
+                       previewDiv.innerHTML = `<img src="${localUrl}" style="max-width: 150px; max-height: 80px; object-fit: contain; border: 2px solid #ddd; border-radius: 5px;" onload="URL.revokeObjectURL(this.src);">`;
+                   } else {
+                       previewDiv.innerHTML = '<span style="color: red;">❌ Nieprawidłowy format pliku</span>';
+                   }
+               } else if (companyInfo.logoUrl) {
+                   previewDiv.innerHTML = `<img src="${companyInfo.logoUrl}" style="max-width: 150px; max-height: 80px; object-fit: contain; border: 2px solid #ddd; border-radius: 5px;" onerror="this.style.display=\'none\'; this.nextSibling.style.display=\'block\';" onload="this.nextSibling.style.display=\'none\';"><span style="color: red; display: none;">❌ Błąd ładowania obrazu</span>`;
+               } else {
+                   previewDiv.innerHTML = 'Tekst: "CarTax"';
+               }
+           }
+           async function saveLogo() {
+               const fileInput = document.getElementById('logo-file');
+               const file = fileInput.files[0];
+           
+               if (file) {
+                   if (!firebaseConnected || !storage) {
+                       alert('❌ Aby przesłać logo, połącz z Firebase!');
+                       return;
+                   }
+                   if (!file.type.startsWith('image/')) {
+                       alert('❌ Proszę wybrać plik obrazu (PNG, JPG, SVG).');
+                       return;
+                   }
+               
+                   try {
+                       const storageRef = storage.ref('logos/' + Date.now() + '_' + file.name);
+                       const snapshot = await storageRef.put(file);
+                       const url = await snapshot.ref.getDownloadURL();
+                   
+                       companyInfo.logoUrl = url;
+                       await saveData();
+                       updateLogoDisplay();
+                       updateLogoPreview();
+                       fileInput.value = '';
+                       alert('✅ Logo zostało przesłane do Firebase i zapisane pomyślnie!');
+                   } catch (error) {
+                       console.error('Błąd przesyłania logo:', error);
+                       alert('❌ Błąd podczas przesyłania logo: ' + error.message);
+                   }
+               } else {
+                   alert('❌ Proszę wybrać plik logo do przesłania.');
+               }
+           }
+           function removeLogo() {
+               if (confirm('Czy na pewno chcesz usunąć logo? Zostanie przywrócony tekst "CarTax".')) {
+                   companyInfo.logoUrl = '';
+                   saveData();
+                   updateLogoDisplay();
+                   updateLogoPreview();
+                   alert('✅ Logo zostało usunięte.');
+               }
+           }
+           function updateLogoDisplay() {
+               const logoText = document.getElementById('logo-text');
+               const logoImage = document.getElementById('logo-image');
+           
+               if (companyInfo.logoUrl) {
+                   logoText.style.display = 'none';
+                   logoImage.style.display = 'block';
+                   logoImage.src = companyInfo.logoUrl;
+                   logoImage.onerror = function() {
+                       // If image fails to load, show text
+                       logoText.style.display = 'block';
+                       logoImage.style.display = 'none';
+                   };
+               } else {
+                   logoText.style.display = 'block';
+                   logoImage.style.display = 'none';
+               }
+           }
+           function updateLogoPreview() {
+               const previewDiv = document.getElementById('current-logo-preview');
+           
+               if (companyInfo.logoUrl) {
+                   previewDiv.innerHTML = `<img src="${companyInfo.logoUrl}" style="max-width: 150px; max-height: 80px; object-fit: contain; border: 2px solid #ddd; border-radius: 5px;" onerror="this.style.display='none'; this.nextSibling.style.display='block';" onload="this.nextSibling.style.display='none';"><span style="color: red; display: none;">❌ Błąd ładowania obrazu</span>`;
+               } else {
+                   previewDiv.innerHTML = 'Tekst: "CarTax"';
+               }
+           }
+           function connectFirebase() {
+               const configInput = document.getElementById('firebase-config-input').value.trim();
+               try {
+                   let config;
+               
+                   // Try to parse as JSON first
+                   try {
+                       config = JSON.parse(configInput);
+                   } catch (jsonError) {
+                       // If JSON fails, try to evaluate as JavaScript object
+                       try {
+                           config = eval('(' + configInput + ')');
+                       } catch (evalError) {
+                           throw new Error('Invalid format');
+                       }
+                   }
+               
+                   // Validate required fields
+                   const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket'];
+                   for (let field of requiredFields) {
+                       if (!config[field]) {
+                           throw new Error(`Missing required field: ${field}`);
+                       }
+                   }
+               
+                   firebaseManager.initializeFirebase(config);
+                   alert('✅ Firebase został połączony pomyślnie!\n\nKonfiguracja zostanie automatycznie przywrócona przy następnym uruchomieniu.');
+                   saveData();
+               } catch (error) {
+                   alert('❌ Błąd konfiguracji Firebase: ' + error.message + '\n\nSprawdź czy wszystkie klucze są w cudzysłowach i czy składnia jest poprawna.');
+               }
+           }
+           function disconnectFirebase() {
+               firebaseManager.disconnect();
+               document.getElementById('firebase-config-input').value = '';
+               alert('Firebase został rozłączony. Konfiguracja została usunięta.');
+               saveData();
+           }
+           function updateWebsiteContent() {
+               // Update hero stats
+               document.getElementById('stat-experience').textContent = companyInfo.experience;
+               document.getElementById('stat-clients').textContent = companyInfo.clients;
+               document.getElementById('stat-support').textContent = companyInfo.support;
+               // Update footer
+               const footerContent = document.getElementById('footer-content');
+               if (footerContent) {
+                   footerContent.innerHTML = `
+                       <div class="footer-section">
+                           <h3>${companyInfo.name}</h3>
+                           <p>${companyInfo.description}</p>
+                       </div>
+                       <div class="footer-section">
+                           <h3>Kontakt</h3>
+                           <p>${companyInfo.address}<br>${companyInfo.city}, ${companyInfo.country}</p>
+                           <p>Tel: ${companyInfo.phone}</p>
+                           <p>Email: ${companyInfo.email}</p>
+                       </div>
+                       <div class="footer-section">
+                           <h3>Informacje</h3>
+                           <p>NIP: ${companyInfo.nip}</p>
+                           <p>Godziny pracy:<br>${companyInfo.workingHours}</p>
+                       </div>
+                   `;
+               }
+               // Update contact page
+               const contactInfo = document.getElementById('contact-info');
+               if (contactInfo) {
+                   contactInfo.innerHTML = `
+                       <h3>Dane kontaktowe</h3>
+                       <div class="contact-item">
+                           <i>📍</i>
+                           <span>${companyInfo.address}<br>${companyInfo.city}, ${companyInfo.country}</span>
+                       </div>
+                       <div class="contact-item">
+                           <i>📞</i>
+                           <span>${companyInfo.phone}</span>
+                       </div>
+                       <div class="contact-item">
+                           <i>✉️</i>
+                           <span>${companyInfo.email}</span>
+                       </div>
+                       <div class="contact-item">
+                           <i>🏢</i>
+                           <span>NIP: ${companyInfo.nip}</span>
+                       </div>
+                       <div class="map">
+   <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2324.905!2d18.6152315!3d54.340261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fd74a4f0b5a8b3%3A0xdef123456789!2sB%C5%82o%C5%84ska+25%2F1%2C+80-732+Gda%C5%84sk!5e0!3m2!1sen!2spl!4v1722870000000!5m2!1sen!2spl" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                       </div>
+                   `;
+               }
+               // Update company description on home page
+               const companyDescHome = document.getElementById('company-description-home');
+               if (companyDescHome) {
+                   companyDescHome.textContent = companyInfo.description;
+               }
+               // Update logo display
+               updateLogoDisplay();
+               // Update body background color
+               document.body.style.backgroundColor = companyInfo.bodyBgColor;
+           }
+           function updateAboutContent() {
+               const aboutText = document.getElementById('about-text');
+               if (aboutText) {
+                   aboutText.innerHTML = `
+                       <h2>Historia CarTax</h2>
+                       <p>${aboutContent.historyText}</p>
+                       <h3>${aboutContent.experienceTitle}</h3>
+                       <p>${aboutContent.experienceDesc}</p>
+                       <ul style="margin: 1rem 0; padding-left: 2rem;">
+                           ${aboutContent.experienceList.map(item => `<li>${item}</li>`).join('')}
+                       </ul>
+                       <h3>${aboutContent.whyTitle}</h3>
+                       <p>${aboutContent.whyDesc}</p>
+                       <ul style="margin: 1rem 0; padding-left: 2rem;">
+                           ${aboutContent.whyList.map(item => `<li>${item}</li>`).join('')}
+                       </ul>
+                   `;
+               }
+           }
+           function logout() {
+               isLoggedIn = false;
+               showPage('home');
+           }
+           // Password hashing function (simple hash for demo)
+           function hashPassword(password) {
+               let hash = 0;
+               for (let i = 0; i < password.length; i++) {
+                   const char = password.charCodeAt(i);
+                   hash = ((hash << 5) - hash) + char;
+                   hash = hash & hash; // Convert to 32-bit integer
+               }
+               return hash.toString();
+           }
+           // Enhanced Data Management with password hashing
+           async function saveData() {
+               const data = {
+                   services: services,
+                   adminPasswordHash: adminPasswordHash, // Save hashed password
+                   companyInfo: companyInfo,
+                   aboutContent: aboutContent,
+                   firebaseConfig: firebaseConfig
+               };
+           
+               try {
+                   await firebaseManager.saveData(data);
+                   console.log('Data saved successfully');
+               } catch (error) {
+                   console.error('Error saving data:', error);
+               }
+           }
+           async function loadData() {
+               try {
+                   // First try to auto-reconnect Firebase
+                   await firebaseManager.autoReconnect();
+               
+                   // Then load data
+                   const data = await firebaseManager.loadData();
+                   if (data) {
+                       if (data.services) services = data.services;
+                       // Load hashed password
+                       if (data.adminPasswordHash) {
+                           adminPasswordHash = data.adminPasswordHash;
+                       } else if (data.adminPassword) {
+                           // Migrate old plain text password
+                           adminPasswordHash = hashPassword(data.adminPassword);
+                       }
+                       if (data.companyInfo) companyInfo = data.companyInfo;
+                       if (data.aboutContent) aboutContent = data.aboutContent;
+                   } else {
+                       // If no data, set default hash
+                       adminPasswordHash = hashPassword("haslo");
+                   }
+                   updateWebsiteContent();
+                   updateAboutContent();
+               } catch (error) {
+                   console.error('Error loading data:', error);
+               }
+           }
+           // Enhanced password verification
+           function verifyPassword(inputPassword) {
+               return hashPassword(inputPassword) === adminPasswordHash;
+           }
+           // Event Listeners
+           document.addEventListener('DOMContentLoaded', function() {
+               if (!localStorage.getItem('cartax_firebase_config')) {
+                   firebaseManager.initializeFirebase({
+     "apiKey": "AIzaSyADFJk8m8iDsYf740bj9uMRAYZqiY23aC0",
+     "authDomain": "cartax-strona.firebaseapp.com",
+     "projectId": "cartax-strona",
+     "storageBucket": "cartax-strona.firebasestorage.app",
+     "messagingSenderId": "835838323129",
+     "appId": "1:835838323129:web:083ec4f1842802b830ee68",
+     "measurementId": "G-SEPTH7Z2K1"
+   });
+               }
+               loadData();
+               loadServices();
+               updateAboutContent();
+           
+               // Contact form
+               document.getElementById('contact-form').addEventListener('submit', function(e) {
+                   e.preventDefault();
+                   alert('Dziękujemy za wiadomość! Skontaktujemy się z Państwem wkrótce.');
+                   this.reset();
+               });
+           
+               // Admin login with enhanced security
+               document.getElementById('admin-login-form').addEventListener('submit', function(e) {
+                   e.preventDefault();
+                   const password = document.getElementById('admin-password').value;
+                   if (verifyPassword(password)) {
+                       isLoggedIn = true;
+                       showPage('admin-dashboard');
+                       loadAdminServices();
+                       firebaseManager.updateFirebaseStatus();
+                   } else {
+                       alert('Nieprawidłowe hasło!');
+                   }
+               });
+           
+               // Service form
+               document.getElementById('service-form').addEventListener('submit', function(e) {
+                   e.preventDefault();
+               
+                   const id = document.getElementById('service-id').value;
+                   const name = document.getElementById('service-name').value;
+                   const description = document.getElementById('service-description').value;
+                   const price = document.getElementById('service-price').value;
+                   const icon = document.getElementById('service-icon').value;
+               
+                   if (id) {
+                       // Edit existing service
+                       const service = services.find(s => s.id == id);
+                       if (service) {
+                           service.name = name;
+                           service.description = description;
+                           service.price = price;
+                           service.icon = icon;
+                       }
+                   } else {
+                       // Add new service
+                       const newId = Math.max(...services.map(s => s.id)) + 1;
+                       services.push({
+                           id: newId,
+                           name: name,
+                           description: description,
+                           price: price,
+                           icon: icon
+                       });
+                   }
+               
+                   saveData();
+                   loadAdminServices();
+                   loadServices();
+                   cancelServiceForm();
+                   alert('✅ Usługa została zapisana!');
+               });
+               // Company form
+               document.getElementById('company-form').addEventListener('submit', function(e) {
+                   e.preventDefault();
+               
+                   companyInfo.name = document.getElementById('company-name').value;
+                   companyInfo.nip = document.getElementById('company-nip').value;
+                   companyInfo.phone = document.getElementById('company-phone').value;
+                   companyInfo.email = document.getElementById('company-email').value;
+                   companyInfo.address = document.getElementById('company-address').value;
+                   companyInfo.city = document.getElementById('company-city').value;
+                   companyInfo.country = document.getElementById('company-country').value;
+                   companyInfo.description = document.getElementById('company-description').value;
+                   companyInfo.workingHours = document.getElementById('company-hours').value;
+                   companyInfo.founded = document.getElementById('company-founded').value;
+                   companyInfo.experience = document.getElementById('company-experience').value;
+                   companyInfo.clients = document.getElementById('company-clients').value;
+                   companyInfo.support = document.getElementById('company-support').value;
+                   companyInfo.bodyBgColor = document.getElementById('body-bg-color').value;
+               
+                   // Note: Logo is saved separately via saveLogo() function
+               
+                   saveData();
+                   updateWebsiteContent();
+                   alert('✅ Dane firmy zostały zaktualizowane!');
+               });
+           
+               // Content form
+               document.getElementById('content-form').addEventListener('submit', function(e) {
+                   e.preventDefault();
+               
+                   aboutContent.historyText = document.getElementById('history-text').value;
+                   aboutContent.experienceTitle = document.getElementById('experience-title').value;
+                   aboutContent.experienceDesc = document.getElementById('experience-desc').value;
+                   aboutContent.experienceList = document.getElementById('experience-list').value.split('\n').filter(line => line.trim() !== '');
+                   aboutContent.whyTitle = document.getElementById('why-title').value;
+                   aboutContent.whyDesc = document.getElementById('why-desc').value;
+                   aboutContent.whyList = document.getElementById('why-list').value.split('\n').filter(line => line.trim() !== '');
+               
+                   saveData();
+                   updateAboutContent();
+                   alert('✅ Treść została zaktualizowana!');
+               });
+           
+               // Password change form
+               document.getElementById('password-change-form').addEventListener('submit', function(e) {
+                   e.preventDefault();
+               
+                   const oldPassword = document.getElementById('old-password').value;
+                   const newPassword = document.getElementById('new-password').value;
+                   const confirmPassword = document.getElementById('confirm-password').value;
+               
+                   if (!verifyPassword(oldPassword)) {
+                       alert('❌ Nieprawidłowe stare hasło!');
+                       return;
+                   }
+               
+                   if (newPassword !== confirmPassword) {
+                       alert('❌ Nowe hasła nie są identyczne!');
+                       return;
+                   }
+               
+                   if (newPassword.length < 4) {
+                       alert('❌ Nowe hasło musi mieć co najmniej 4 znaki!');
+                       return;
+                   }
+               
+                   adminPasswordHash = hashPassword(newPassword);
+                   saveData();
+                   alert('✅ Hasło zostało zmienione pomyślnie!');
+                   this.reset();
+               });
+           });
+           // Check for admin access in URL
+           if (window.location.hash === '#admin') {
+               showPage('admin-login');
+           }
+           // Animation on scroll
+           function animateOnScroll() {
+               const elements = document.querySelectorAll('.fade-in');
+               elements.forEach(element => {
+                   const elementTop = element.getBoundingClientRect().top;
+                   const elementVisible = 150;
+               
+                   if (elementTop < window.innerHeight - elementVisible) {
+                       element.style.opacity = '1';
+                       element.style.transform = 'translateY(0)';
+                   }
+               });
+           }
+           window.addEventListener('scroll', animateOnScroll);
+           setTimeout(animateOnScroll, 100);
+       </script>
+   </body>
+   </html>
