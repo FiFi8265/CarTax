@@ -1894,7 +1894,7 @@
                document.getElementById('admin-login-form').addEventListener('submit', function(e) {
                    e.preventDefault();
                    const password = document.getElementById('admin-password').value;
-                   auth.signInWithEmailAndPassword('admin@cartax.pl', password)
+                   auth.signInWithEmailAndPassword('cartaxgdansk@gmail.com', password)
                        .then((userCredential) => {
                            isLoggedIn = true;
                            showPage('admin-dashboard');
@@ -2005,7 +2005,7 @@
                    }
                
                    const user = auth.currentUser;
-                   const credential = firebase.auth.EmailAuthProvider.credential('admin@cartax.pl', oldPassword);
+                   const credential = firebase.auth.EmailAuthProvider.credential('cartaxgdansk@gmail.com', oldPassword);
                
                    user.reauthenticateWithCredential(credential).then(() => {
                        return user.updatePassword(newPassword);
