@@ -6,12 +6,11 @@
     <title>CarTax s.c. - Elektroniczny Warsztat Samochodowy | Gdańsk</title>
     <meta name="description" content="CarTax s.c. - Specjalistyczny warsztat elektroniczny w Gdańsku. Diagnostyka samochodowa, programowanie sterowników, instalacje taksometrów, kasy fiskalne.">
     <meta name="keywords" content="diagnostyka samochodowa, programowanie sterowników, taksometry, kasy fiskalne, elektronika samochodowa, Gdańsk">
-  
+ 
     <!-- Firebase SDK Compat Versions -->
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
- 
     <style>
         * {
             margin: 0;
@@ -163,9 +162,9 @@
             animation: fadeInUp 1s ease-out;
         }
         .hero-content .logo-large {
-            font-size: 8rem;
+            font-size: clamp(4rem, 8vw, 8rem);
             font-weight: 900;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
             background: linear-gradient(45deg, #ffd700, #ffed4a);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -177,8 +176,8 @@
             min-height: 5rem;
         }
         .hero-content .logo-large img {
-            max-height: 300px;
-            max-width: 600px;
+            max-height: clamp(150px, 30vw, 300px);
+            max-width: clamp(300px, 60vw, 600px);
             object-fit: contain;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         }
@@ -713,11 +712,11 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .hero-content .logo-large {
-                font-size: 6rem;
+                font-size: clamp(4rem, 8vw, 6rem);
             }
             .hero-content .logo-large img {
-                max-height: 225px;
-                max-width: 450px;
+                max-height: clamp(150px, 30vw, 225px);
+                max-width: clamp(300px, 60vw, 450px);
             }
             .hero-tagline {
                 font-size: 1.2rem;
@@ -773,16 +772,16 @@
         }
         @media (max-width: 480px) {
             .hero-content .logo-large {
-                font-size: 5rem;
+                font-size: clamp(4rem, 8vw, 5rem);
             }
             .hero-content .logo-large img {
-                max-height: 225px;
-                max-width: 450px;
+                max-height: clamp(150px, 30vw, 225px);
+                max-width: clamp(300px, 60vw, 450px);
             }
             .section-title {
                 font-size: 2rem;
             }
-         
+        
             .admin-dashboard,
             .admin-login {
                 margin: 100px 20px;
@@ -867,7 +866,7 @@
                 <div class="about-content">
                     <div class="about-text">
                         <h2>CarTax - Twój Partner w Elektronice Samochodowej</h2>
-                        <p id="company-description-home">CarTax to specjalistyczny warsztat elektroniczny w Gdańsku oferujący kompleksowe usługi w zakresie elektroniki pojazdowej, w tym diagnostykę, programowanie i naprawę sterowników, instalacje taksometrów oraz obsługę kas fiskalnych dla taksówek i nie tylko.</p>
+                        <p id="company-description-home">CarTax to specjalistyczny warsztat elektroniczny w Gdańsku oferujący kompleksowe usługi w zakresie elektroniki pojazdowej, diagnostyki, programowania sterowników, instalacji taksometrów oraz obsługi kas fiskalnych dla taksówek i nie tylko.</p>
                         <p>Nasza firma została założona w 2014 roku i od tego czasu świadczymy ekspertowskie usługi w dziedzinie elektroniki taksówkowej, urządzeń fiskalnych oraz diagnostyki pojazdów.</p>
                         <a class="btn" onclick="showPage('about')">Dowiedz się więcej</a>
                     </div>
@@ -951,7 +950,7 @@
                             <i>🏢</i>
                             <span>NIP: 583-316-75-25</span>
                         </div>
-                     
+                    
                         <div class="map">
 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2324.905!2d18.6152315!3d54.340261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fd74a4f0b5a8b3%3A0xdef123456789!2sB%C5%82o%C5%84ska+25%2F1%2C+80-732+Gda%C5%84sk!5e0!3m2!1sen!2spl!4v1722870000000!5m2!1sen!2spl" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                         </div>
@@ -980,11 +979,11 @@
                 <h2>Panel Administracyjny CarTax</h2>
                 <button onclick="logout()" class="btn btn-secondary">Wyloguj</button>
             </div>
-         
+        
             <div id="firebase-status" class="firebase-status firebase-disconnected">
                 🔴 Firebase rozłączony - dane zapisywane lokalnie
             </div>
-         
+        
             <div class="admin-nav">
                 <button class="active" onclick="showAdminSection('services-admin')">Zarządzaj Usługami</button>
                 <button onclick="showAdminSection('company-admin')">Dane Firmy</button>
@@ -996,7 +995,7 @@
             <div id="services-admin" class="admin-section active">
                 <h3>Zarządzanie Usługami</h3>
                 <button onclick="showAddServiceForm()" class="action-btn add-btn">➕ Dodaj Nową Usługę</button>
-             
+            
                 <div id="add-service-form" class="hidden form-section">
                     <h4>Dodaj/Edytuj Usługę</h4>
                     <form id="service-form">
@@ -1044,13 +1043,13 @@
                                 </div>
                             </div>
                         </div>
-                     
+                    
                         <div class="form-group">
                             <label for="logo-file">Wybierz plik logo:</label>
                             <input type="file" id="logo-file" accept="image/png, image/jpeg, image/svg+xml">
                             <small style="color: #666;">Zalecane formaty: PNG, JPG, SVG. Wymiary: 300x150px</small>
                         </div>
-                     
+                    
                         <div class="logo-actions">
                             <button type="button" onclick="previewLogo()" class="upload-btn">👁️ Podgląd</button>
                             <button type="button" onclick="saveLogo()" class="btn">💾 Zapisz Logo</button>
@@ -1076,7 +1075,7 @@
                             <input type="email" id="company-email" required>
                         </div>
                     </div>
-                 
+                
                     <h4>Adres</h4>
                     <div class="form-grid">
                         <div class="form-group">
@@ -1107,7 +1106,7 @@
                             <input type="text" id="company-founded" placeholder="2014">
                         </div>
                     </div>
-                 
+                
                     <h4>Statystyki (wyświetlane na stronie głównej)</h4>
                     <div class="form-grid">
                         <div class="form-group">
@@ -1179,7 +1178,7 @@
                     <div id="firebase-status-detail" class="firebase-status firebase-disconnected">
                         🔴 Firebase rozłączony - dane zapisywane lokalnie
                     </div>
-                 
+                
                     <h4>Konfiguracja Firebase (opcjonalna):</h4>
                     <p>Firebase automatycznie połączy się przy następnym uruchomieniu. Wklej konfigurację tylko raz:</p>
                     <textarea id="firebase-config-input" placeholder='{
@@ -1194,7 +1193,7 @@
                     <button onclick="connectFirebase()" class="btn">🔗 Połącz z Firebase</button>
                     <button onclick="disconnectFirebase()" class="btn btn-secondary">❌ Rozłącz Firebase</button>
                 </div>
-             
+            
                 <div style="margin-top: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 5px;">
                     <h4>📋 Instrukcja konfiguracji Firebase:</h4>
                     <ol style="margin-left: 1.5rem;">
@@ -1209,7 +1208,7 @@
                         <li>Nadaj nazwę aplikacji i kliknij "Zarejestruj"</li>
                         <li>Skopiuj konfigurację (obiekt config) i wklej powyżej</li>
                     </ol>
-                 
+                
                     <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">
                         <h5>🔐 Bezpieczeństwo:</h5>
                         <p><strong>Hasło administratora jest teraz szyfrowane!</strong></p>
@@ -1357,7 +1356,15 @@
         let firebaseApp = null;
         let db = null;
         let storage = null;
-        let firebaseConfig = null;
+        let firebaseConfig = {
+            "apiKey": "AIzaSyADFJk8m8iDsYf740bj9uMRAYZqiY23aC0",
+            "authDomain": "cartax-strona.firebaseapp.com",
+            "projectId": "cartax-strona",
+            "storageBucket": "cartax-strona.firebasestorage.app",
+            "messagingSenderId": "835838323129",
+            "appId": "1:835838323129:web:083ec4f1842802b830ee68",
+            "measurementId": "G-SEPTH7Z2K1"
+        };
         let firebaseConnected = false;
         // Enhanced Firebase Manager with auto-reconnect
         class FirebaseManager {
@@ -1374,10 +1381,10 @@
                     storage = firebaseApp.storage();
                     this.connected = true;
                     firebaseConnected = true;
-                 
+                
                     // Save config for auto-reconnect
                     localStorage.setItem('cartax_firebase_config', JSON.stringify(config));
-                 
+                
                     this.updateFirebaseStatus();
                     console.log('Firebase connected successfully');
                     return true;
@@ -1419,7 +1426,7 @@
                     '🟢 Firebase połączony - dane synchronizowane' :
                     '🔴 Firebase rozłączony - dane zapisywane lokalnie';
                 const statusClass = this.connected ? 'firebase-connected' : 'firebase-disconnected';
-             
+            
                 if (statusEl) {
                     statusEl.className = `firebase-status ${statusClass}`;
                     statusEl.textContent = statusText;
@@ -1439,7 +1446,7 @@
                     try {
                         await db.collection('cartax').doc('data').set(data);
                         console.log('Data saved to Firestore');
-                     
+                    
                         // Also save locally as backup
                         localStorage.setItem('cartax_data', JSON.stringify(data));
                         return true;
@@ -1484,13 +1491,13 @@
         let logoClickTimer = null;
         function handleLogoClick() {
             logoClickCount++;
-         
+        
             // Reset counter after 3 seconds if not reached 5 clicks
             if (logoClickTimer) clearTimeout(logoClickTimer);
             logoClickTimer = setTimeout(() => {
                 logoClickCount = 0;
             }, 3000);
-         
+        
             // If clicked 5 times, go to admin
             if (logoClickCount >= 5) {
                 logoClickCount = 0;
@@ -1501,16 +1508,16 @@
         function showPage(pageId) {
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.remove('active'));
-         
+        
             document.getElementById(pageId).classList.add('active');
-         
+        
             if (pageId === 'services') {
                 loadServices();
             }
             if (pageId === 'about') {
                 updateAboutContent();
             }
-         
+        
             document.getElementById('nav-menu').classList.remove('active');
         }
         function toggleMobileMenu() {
@@ -1521,11 +1528,11 @@
         function loadServices() {
             const servicesList = document.getElementById('services-list');
             const homeServices = document.getElementById('home-services');
-         
+        
             // Clear both containers
             if (servicesList) servicesList.innerHTML = '';
             if (homeServices) homeServices.innerHTML = '';
-         
+        
             services.forEach((service, index) => {
                 const serviceCard = document.createElement('div');
                 serviceCard.className = 'service-card fade-in';
@@ -1536,7 +1543,7 @@
                     <p>${service.description}</p>
                     ${service.price ? `<div class="service-price">${service.price}</div>` : ''}
                 `;
-             
+            
                 if (servicesList) servicesList.appendChild(serviceCard.cloneNode(true));
                 if (homeServices) homeServices.appendChild(serviceCard);
             });
@@ -1544,7 +1551,7 @@
         function loadAdminServices() {
             const adminList = document.getElementById('services-admin-list');
             adminList.innerHTML = '';
-         
+        
             services.forEach(service => {
                 const serviceItem = document.createElement('div');
                 serviceItem.className = 'service-item';
@@ -1592,13 +1599,13 @@
         function showAdminSection(sectionId) {
             const sections = document.querySelectorAll('.admin-section');
             sections.forEach(section => section.classList.remove('active'));
-         
+        
             document.getElementById(sectionId).classList.add('active');
-         
+        
             const buttons = document.querySelectorAll('.admin-nav button');
             buttons.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-         
+        
             if (sectionId === 'services-admin') {
                 loadAdminServices();
             } else if (sectionId === 'company-admin') {
@@ -1639,7 +1646,7 @@
         function previewLogo() {
             const fileInput = document.getElementById('logo-file');
             const previewDiv = document.getElementById('current-logo-preview');
-         
+        
             if (fileInput.files && fileInput.files[0]) {
                 const file = fileInput.files[0];
                 if (file.type.startsWith('image/')) {
@@ -1657,7 +1664,7 @@
         async function saveLogo() {
             const fileInput = document.getElementById('logo-file');
             const file = fileInput.files[0];
-         
+        
             if (file) {
                 if (!firebaseConnected || !storage) {
                     alert('❌ Aby przesłać logo, połącz z Firebase!');
@@ -1667,12 +1674,12 @@
                     alert('❌ Proszę wybrać plik obrazu (PNG, JPG, SVG).');
                     return;
                 }
-             
+            
                 try {
                     const storageRef = storage.ref('logos/' + Date.now() + '_' + file.name);
                     const snapshot = await storageRef.put(file);
                     const url = await snapshot.ref.getDownloadURL();
-                 
+                
                     companyInfo.logoUrl = url;
                     await saveData();
                     updateLogoDisplay();
@@ -1699,7 +1706,7 @@
         function updateLogoDisplay() {
             const logoText = document.getElementById('logo-text');
             const logoImage = document.getElementById('logo-image');
-         
+        
             if (companyInfo.logoUrl) {
                 logoText.style.display = 'none';
                 logoImage.style.display = 'block';
@@ -1716,7 +1723,7 @@
         }
         function updateLogoPreview() {
             const previewDiv = document.getElementById('current-logo-preview');
-         
+        
             if (companyInfo.logoUrl) {
                 previewDiv.innerHTML = `<img src="${companyInfo.logoUrl}" style="max-width: 150px; max-height: 80px; object-fit: contain; border: 2px solid #ddd; border-radius: 5px;" onerror="this.style.display='none'; this.nextSibling.style.display='block';" onload="this.nextSibling.style.display='none';"><span style="color: red; display: none;">❌ Błąd ładowania obrazu</span>`;
             } else {
@@ -1727,7 +1734,7 @@
             const configInput = document.getElementById('firebase-config-input').value.trim();
             try {
                 let config;
-             
+            
                 // Try to parse as JSON first
                 try {
                     config = JSON.parse(configInput);
@@ -1739,7 +1746,7 @@
                         throw new Error('Invalid format');
                     }
                 }
-             
+            
                 // Validate required fields
                 const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket'];
                 for (let field of requiredFields) {
@@ -1747,7 +1754,7 @@
                         throw new Error(`Missing required field: ${field}`);
                     }
                 }
-             
+            
                 firebaseManager.initializeFirebase(config);
                 alert('✅ Firebase został połączony pomyślnie!\n\nKonfiguracja zostanie automatycznie przywrócona przy następnym uruchomieniu.');
                 saveData();
@@ -1865,7 +1872,7 @@
                 aboutContent: aboutContent,
                 firebaseConfig: firebaseConfig
             };
-         
+        
             try {
                 await firebaseManager.saveData(data);
                 console.log('Data saved successfully');
@@ -1877,7 +1884,7 @@
             try {
                 // First try to auto-reconnect Firebase
                 await firebaseManager.autoReconnect();
-             
+            
                 // Then load data
                 const data = await firebaseManager.loadData();
                 if (data) {
@@ -1907,17 +1914,18 @@
         }
         // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
+            firebaseManager.initializeFirebase(firebaseConfig);
             loadData();
             loadServices();
             updateAboutContent();
-         
+        
             // Contact form
             document.getElementById('contact-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 alert('Dziękujemy za wiadomość! Skontaktujemy się z Państwem wkrótce.');
                 this.reset();
             });
-         
+        
             // Admin login with enhanced security
             document.getElementById('admin-login-form').addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1931,17 +1939,17 @@
                     alert('Nieprawidłowe hasło!');
                 }
             });
-         
+        
             // Service form
             document.getElementById('service-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-             
+            
                 const id = document.getElementById('service-id').value;
                 const name = document.getElementById('service-name').value;
                 const description = document.getElementById('service-description').value;
                 const price = document.getElementById('service-price').value;
                 const icon = document.getElementById('service-icon').value;
-             
+            
                 if (id) {
                     // Edit existing service
                     const service = services.find(s => s.id == id);
@@ -1962,7 +1970,7 @@
                         icon: icon
                     });
                 }
-             
+            
                 saveData();
                 loadAdminServices();
                 loadServices();
@@ -1972,7 +1980,7 @@
             // Company form
             document.getElementById('company-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-             
+            
                 companyInfo.name = document.getElementById('company-name').value;
                 companyInfo.nip = document.getElementById('company-nip').value;
                 companyInfo.phone = document.getElementById('company-phone').value;
@@ -1987,18 +1995,18 @@
                 companyInfo.clients = document.getElementById('company-clients').value;
                 companyInfo.support = document.getElementById('company-support').value;
                 companyInfo.bodyBgColor = document.getElementById('body-bg-color').value;
-             
+            
                 // Note: Logo is saved separately via saveLogo() function
-             
+            
                 saveData();
                 updateWebsiteContent();
                 alert('✅ Dane firmy zostały zaktualizowane!');
             });
-         
+        
             // Content form
             document.getElementById('content-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-             
+            
                 aboutContent.historyText = document.getElementById('history-text').value;
                 aboutContent.experienceTitle = document.getElementById('experience-title').value;
                 aboutContent.experienceDesc = document.getElementById('experience-desc').value;
@@ -2006,35 +2014,35 @@
                 aboutContent.whyTitle = document.getElementById('why-title').value;
                 aboutContent.whyDesc = document.getElementById('why-desc').value;
                 aboutContent.whyList = document.getElementById('why-list').value.split('\n').filter(line => line.trim() !== '');
-             
+            
                 saveData();
                 updateAboutContent();
                 alert('✅ Treść została zaktualizowana!');
             });
-         
+        
             // Password change form
             document.getElementById('password-change-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-             
+            
                 const oldPassword = document.getElementById('old-password').value;
                 const newPassword = document.getElementById('new-password').value;
                 const confirmPassword = document.getElementById('confirm-password').value;
-             
+            
                 if (!verifyPassword(oldPassword)) {
                     alert('❌ Nieprawidłowe stare hasło!');
                     return;
                 }
-             
+            
                 if (newPassword !== confirmPassword) {
                     alert('❌ Nowe hasła nie są identyczne!');
                     return;
                 }
-             
+            
                 if (newPassword.length < 4) {
                     alert('❌ Nowe hasło musi mieć co najmniej 4 znaki!');
                     return;
                 }
-             
+            
                 adminPasswordHash = hashPassword(newPassword);
                 saveData();
                 alert('✅ Hasło zostało zmienione pomyślnie!');
@@ -2051,7 +2059,7 @@
             elements.forEach(element => {
                 const elementTop = element.getBoundingClientRect().top;
                 const elementVisible = 150;
-             
+            
                 if (elementTop < window.innerHeight - elementVisible) {
                     element.style.opacity = '1';
                     element.style.transform = 'translateY(0)';
